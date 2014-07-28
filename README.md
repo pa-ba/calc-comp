@@ -44,7 +44,7 @@ paper:
 
  - [Arith.v](Arith.v): arithmetic expressions (section 2)
  - [Exceptions.v](Exceptions.v): exceptions, first approach (section 3.1)
- - [ExceptionsTwoCont](ExceptionsTwoCont.v): exceptions, second
+ - [ExceptionsTwoCont.v](ExceptionsTwoCont.v): exceptions, second
    approach (section 3.2)
  - [StateGlobal.v](StateGlobal.v): global state (section 4.1)
  - [StateLocal.v](StateLocal.v): local state (section 4.2)
