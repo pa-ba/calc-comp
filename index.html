@@ -1,37 +1,34 @@
 <!DOCTYPE html>
 <html>
-
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Calculating Correct Compilers : Coq proofs for the paper &quot;Calculating Correct Compilers&quot;" />
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 
-    <title>Calculating Correct Compilers</title>
+    <title>Calculating Correct Compilers by pa-ba</title>
   </head>
 
   <body>
+    <header>
+      <div class="inner">
+        <h1>Calculating Correct Compilers</h1>
+        <h2>Coq proofs for the paper &quot;Calculating Correct Compilers&quot;</h2>
+        <a href="https://github.com/pa-ba/calc-comp" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/pa-ba/calc-comp">View on GitHub</a>
-
-          <h1 id="project_title">Calculating Correct Compilers</h1>
-          <h2 id="project_tagline">Coq proofs for the paper &quot;Calculating Correct Compilers&quot;</h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/pa-ba/calc-comp/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/pa-ba/calc-comp/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <p>This repository contains the supplementary material for the paper
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <p>This repository contains the supplementary material for the paper
 <a href="http://www.diku.dk/%7Epaba/pubs/files/bahr14jfp-preprint.pdf">"Calculating Correct Compilers"</a>
 by Patrick Bahr and Graham Hutton.  The material includes Coq
 formalisations of all calculations in the paper. In addition, we also
@@ -73,45 +70,52 @@ paper:</p>
 
 <ul>
 <li>
-<a href="Arith.v">Arith.v</a>: arithmetic expressions (section 2)</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/Arith.v">Arith.v</a>: arithmetic expressions (section 2)</li>
 <li>
-<a href="Exceptions.v">Exceptions.v</a>: exceptions, first approach (section 3.1)</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/Exceptions.v">Exceptions.v</a>: exceptions, first approach (section 3.1)</li>
 <li>
-<a href="ExceptionsTwoCont.v">ExceptionsTwoCont</a>: exceptions, second
+<a href="https://github.com/pa-ba/calc-comp/blob/master/ExceptionsTwoCont.v">ExceptionsTwoCont</a>: exceptions, second
 approach (section 3.2)</li>
 <li>
-<a href="StateGlobal.v">StateGlobal.v</a>: global state (section 4.1)</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/StateGlobal.v">StateGlobal.v</a>: global state (section 4.1)</li>
 <li>
-<a href="StateLocal.v">StateLocal.v</a>: local state (section 4.2)</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/StateLocal.v">StateLocal.v</a>: local state (section 4.2)</li>
 <li>
-<a href="Lambda.v">Lambda.v</a>: call-by-value lambda calculus (section 5)</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/Lambda.v">Lambda.v</a>: call-by-value lambda calculus (section 5)</li>
 </ul><p>In addition we also include calculations for the following languages:</p>
 
 <ul>
 <li>
-<a href="LambdaCBName.v">LambdaCBName.v</a>: call-by-name lambda calculus</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/LambdaCBName.v">LambdaCBName.v</a>: call-by-name lambda calculus</li>
 <li>
-<a href="LambdaCBNeed.v">LambdaCBNeed.v</a>: call-by-need lambda calculus</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/LambdaCBNeed.v">LambdaCBNeed.v</a>: call-by-need lambda calculus</li>
 <li>
-<a href="Loop.v">Loop.v</a>: a simple imperative language with while loops</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/Loop.v">Loop.v</a>: a simple imperative language with while loops</li>
 </ul><p>The remaining files are used to define the Coq tactics to support
-reasoning in calculation style (<a href="Tactics.v">Tactics.v</a>) and to specify
-auxiliary concepts (<a href="Heap.v">Heap.v</a>, <a href="ListIndex.v">ListIndex.v</a>).</p>
+reasoning in calculation style (<a href="https://github.com/pa-ba/calc-comp/blob/master/Tactics.v">Tactics.v</a>) and to specify
+auxiliary concepts (<a href="https://github.com/pa-ba/calc-comp/blob/master/Heap.v">Heap.v</a>, <a href="https://github.com/pa-ba/calc-comp/blob/master/ListIndex.v">ListIndex.v</a>).</p>
 
 <p>The formalisations were developed using version 8.4pl4 of the Coq
 system.</p>
-      </section>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/pa-ba/calc-comp/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/pa-ba/calc-comp/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/pa-ba/calc-comp"></a> is maintained by <a href="https://github.com/pa-ba">pa-ba</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
     </div>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Calculating Correct Compilers maintained by <a href="https://github.com/pa-ba">pa-ba</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
-
-    
-
+  
   </body>
 </html>
