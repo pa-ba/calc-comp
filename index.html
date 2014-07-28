@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Calculating Correct Compilers : Coq proofs for the paper &quot;Calculating Correct Compilers&quot;" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Calculating Correct Compilers</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/pa-ba/calc-comp">View on GitHub</a>
+
+          <h1 id="project_title">Calculating Correct Compilers</h1>
+          <h2 id="project_tagline">Coq proofs for the paper &quot;Calculating Correct Compilers&quot;</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/pa-ba/calc-comp/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/pa-ba/calc-comp/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>This repository contains the supplementary material for the paper
+<a href="http://www.diku.dk/%7Epaba/pubs/files/bahr14jfp-preprint.pdf">"Calculating Correct Compilers"</a>
+by Patrick Bahr and Graham Hutton.  The material includes Coq
+formalisations of all calculations in the paper. In addition, we also
+include Coq formalisations for calculations that were mentioned but
+not explicitly carried out in the paper.</p>
+
+<p>The Coq proofs proceed as the calculations in the paper. There are,
+however, two minor technical difference due to the nature of the Coq
+system.</p>
+
+<ol>
+<li><p>In the paper the derived VMs are tail recursive, first-order
+ functions. The Coq system must be able to prove termination of
+ all recursive function definitions. Since Coq's termination
+ checker is not powerful enough to prove termination for some of
+ the VMs (VMs from sections 3.1, 4.1, 5) or the VMs are not
+ expected to terminate in general (VMs for lambda calculi / for
+ language with loops), we had to define the VMs as relations
+ instead. In particular, all VMs are defined as a small-step
+ semantics. Each tail recursive function of a VM corresponds to a
+ configuration constructor in the small-step semantics. As a
+ consequence, the calculations do not prove equations, but rather
+ instances of the relation =&gt;&gt;, which is the transitive, reflexive
+ closure of the relation ==&gt; that defines the VM.</p></li>
+<li><p>The Coq files contain the final result of the calculation, and
+ thus do not reflect the /process/ of discovering the definition
+ of the compiler and the VM. That is, the files already contain
+ the full definitions of the compiler and the virtual machine. But
+ we used the same methodology as described in the paper to
+ /develop/ the Coq proofs. This is achieved by initially defining
+ the Code data type as an empty type, defining the VM relation as
+ an empty relation (i.e. with no rules), and defining the compiler
+ function using the term "Admit" (which corresponds to Haskell's
+ "undefined"). This setup then allows us to calculate the
+ definition of the Code data type, the VM, and the compiler as
+ described in the paper.</p></li>
+</ol><p>Below we list the relevant Coq files for the calculations in the
+paper:</p>
+
+<ul>
+<li>
+<a href="Arith.v">Arith.v</a>: arithmetic expressions (section 2)</li>
+<li>
+<a href="Exceptions.v">Exceptions.v</a>: exceptions, first approach (section 3.1)</li>
+<li>
+<a href="ExceptionsTwoCont.v">ExceptionsTwoCont</a>: exceptions, second
+approach (section 3.2)</li>
+<li>
+<a href="StateGlobal.v">StateGlobal.v</a>: global state (section 4.1)</li>
+<li>
+<a href="StateLocal.v">StateLocal.v</a>: local state (section 4.2)</li>
+<li>
+<a href="Lambda.v">Lambda.v</a>: call-by-value lambda calculus (section 5)</li>
+</ul><p>In addition we also include calculations for the following languages:</p>
+
+<ul>
+<li>
+<a href="LambdaCBName.v">LambdaCBName.v</a>: call-by-name lambda calculus</li>
+<li>
+<a href="LambdaCBNeed.v">LambdaCBNeed.v</a>: call-by-need lambda calculus</li>
+<li>
+<a href="Loop.v">Loop.v</a>: a simple imperative language with while loops</li>
+</ul><p>The remaining files are used to define the Coq tactics to support
+reasoning in calculation style (<a href="Tactics.v">Tactics.v</a>) and to specify
+auxiliary concepts (<a href="Heap.v">Heap.v</a>, <a href="ListIndex.v">ListIndex.v</a>).</p>
+
+<p>The formalisations were developed using version 8.4pl4 of the Coq
+system.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Calculating Correct Compilers maintained by <a href="https://github.com/pa-ba">pa-ba</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
