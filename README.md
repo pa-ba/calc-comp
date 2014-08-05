@@ -58,7 +58,10 @@ In addition we also include calculations for the following languages:
 
 The remaining files are used to define the Coq tactics to support
 reasoning in calculation style ([Tactics.v](Tactics.v)) and to specify
-auxiliary concepts ([Heap.v](Heap.v), [ListIndex.v](ListIndex.v)).
+auxiliary concepts ([Heap.v](Heap.v), [ListIndex.v](ListIndex.v)). We
+recommend using the
+[generated documentation](http://pa-ba.github.io/calc-comp/doc/toc.html)
+to browse the Coq files.
 
 The formalisations were developed using version 8.4pl4 of the Coq
 system.
