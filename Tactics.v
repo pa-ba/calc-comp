@@ -49,15 +49,6 @@ Ltac dist t := idtac; simpl; try solve [t;eauto|apply trc_step;t;eauto|apply trc
                                         end]] => destruct x; dist t
                       end.
 
-(* Tactic Notation  "adestruct" tactic(cont) :=   *)
-(*   match goal with *)
-(*     | [ |- context [let _ := ?x in _] ] => destruct x;cont *)
-(*     | [ |- context [match ?x with  *)
-(*                       | _ => _  *)
-(*                     end]] => destruct x; cont *)
-(*   end. *)
-
-(* Ltac match_dist := simpl; first [reflexivity|adestruct match_dist]. *)
 Ltac dist_refl := dist reflexivity.
 
 
