@@ -1,7 +1,11 @@
-(** Calculation of a compiler for the lambda calculus + arithmetic. *)
+(** Calculation of a compiler for an imperative language with
+unbounded loops. *)
+
 Require Import List.
 Require Import ListIndex.
 Require Import Tactics.
+
+(** * Syntax *)
 
 Inductive Expr : Set := 
 | Val : nat -> Expr 
@@ -13,12 +17,13 @@ Inductive Stmt : Set :=
 | Seqn : Stmt -> Stmt -> Stmt
 | While : Expr -> Stmt -> Stmt.
 
+(** * Semantics *)
 
 Definition State := nat.
 Reserved Notation "x ⇓[ s ] y" (at level 80, no associativity).
 
 Inductive eval : Expr -> State -> nat -> Prop :=
-| eval_val s n : Val n ⇓[s]  n
+| eval_val s n : Val n ⇓[s] n
 | eval_add s x y m n : x ⇓[s] m -> y ⇓[s] n -> Add x y ⇓[s] (m + n)
 | eval_get s : Get ⇓[s] s
 where "x ⇓[ s ] y" := (eval x s y).
@@ -33,6 +38,7 @@ Inductive run : Stmt -> State -> State -> Prop :=
                    -> While e1 e2 ↓[s1] s3
 where "x ↓[ s ] y" := (run x s y).
 
+(** * Compiler *)
 
 Inductive Code : Set :=
 | PUSH : nat -> Code -> Code
@@ -60,6 +66,8 @@ Fixpoint compS (e : Stmt) (c : Code) : Code :=
 
 Definition comp (e : Stmt) : Code := compS e HALT.
 
+(** * Virtual Machine *)
+
 Inductive Elem : Set :=
 | VAL : nat -> Elem 
 | CON : Code -> Elem
@@ -85,7 +93,10 @@ Inductive VM : Conf -> Conf -> Prop :=
 | vm_enter c k s : ⟨ENTER c, k, s⟩ ==> ⟨c, CON (ENTER c) :: k, s⟩
 where "x ==> y" := (VM x y).
 
+(** * Calculation *)
+
 (** Boilerplate to import calculation tactics *)
+
 Module VM <: Preorder.
 Definition Conf := Conf.
 Definition VM := VM.
@@ -93,20 +104,29 @@ End VM.
 Module VMCalc := Calculation VM.
 Import VMCalc.
 
+(** Specification of the compiler for expressions *)
 Theorem specExpr e s v k c : e ⇓[s] v -> ⟨compE e c, k, s⟩ 
                                  =>> ⟨c , VAL v :: k, s⟩.
+
+(** Setup the induction proof *)
+
 Proof.
   intros.
   generalize dependent c.
   generalize dependent k.
   induction H;intros.
 
+(** Calculation of the compiler for expressions *)
+
+(** - [Val n ⇓[s] n]: *)
 
   begin
   ⟨c, VAL n :: k, s⟩.
   <== { apply vm_push }
   ⟨PUSH n c, k, s⟩.
   [].
+
+(** - [Add x y ⇓[s] (m + n)]: *)
 
   begin
     ⟨c, VAL (m + n) :: k, s ⟩.
@@ -118,6 +138,8 @@ Proof.
   ⟨compE x (compE y (ADD c)), k, s⟩.
   [].
 
+(** - [Get ⇓[s] s]: *)
+
   begin
     ⟨c, VAL s :: k, s⟩.
   <== {apply vm_get}
@@ -125,14 +147,21 @@ Proof.
    [].
 Qed.
   
-
+(** Specification of the compiler for statements *)
 Theorem specStmt e s s' k c : e ↓[s] s' -> ⟨compS e c, k, s⟩ 
                                  =>> ⟨c , k, s'⟩.
+
+(** Setup the induction proof *)
+
 Proof.
   intros.
   generalize dependent c.
   generalize dependent k.
   induction H;intros.
+
+(** Calculation of the compiler for expressions *)
+
+(** - [Put e ↓[s] v]: *)
 
   begin
     ⟨c, k, v⟩.
@@ -141,6 +170,8 @@ Proof.
   <<= {apply specExpr}
     ⟨compE e (PUT c), k, s⟩.
   [].
+
+(** - [Seqn e1 e2 ↓[s1] s3]: *)
   
   begin
     ⟨c, k, s3⟩.
@@ -149,6 +180,8 @@ Proof.
   <<= {apply IHrun1}
     ⟨compS e1 (compS e2 c), k, s1⟩.
   [].
+
+(** - [While e1 e2 ↓[s] s] ([run_while_exit]): *)
 
   begin
     ⟨c, k, s⟩.
@@ -159,6 +192,8 @@ Proof.
   <== {apply vm_enter}
     ⟨ENTER (compE e1 (JMP c (compS e2 LOOP))), k, s ⟩.
   [].
+
+(** - [While e1 e2 ↓[s1] s3] ([run_while_cont]): *)
 
   begin
     ⟨c, k, s3⟩.
@@ -178,6 +213,7 @@ Proof.
 
 Qed.
   
+(** * Soundness *)
   
 Lemma determ_vm : determ VM.
   intros C C1 C2 V. induction V; intro V'; inversion V'; subst; try reflexivity.

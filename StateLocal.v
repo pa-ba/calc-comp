@@ -1,6 +1,9 @@
-(** Calculation for arithmetic + exceptions. *)
+(** Calculation for arithmetic + exceptions + local state. *)
+
 Require Import List.
 Require Import Tactics.
+
+(** * Syntax *)
 
 Inductive Expr : Set := 
 | Val : nat -> Expr 
@@ -9,6 +12,8 @@ Inductive Expr : Set :=
 | Catch : Expr -> Expr -> Expr
 | Get : Expr
 | Put : Expr -> Expr -> Expr.
+
+(** * Semantics *)
 
 Definition State := nat.
 
@@ -34,6 +39,8 @@ Fixpoint eval (e: Expr) (s : State) : option (nat * State) :=
                    end
   end.
 
+(** * Compiler *)
+
 Inductive Code : Set :=
 | HALT : Code
 | PUSH : nat -> Code -> Code
@@ -56,6 +63,8 @@ Fixpoint comp' (e : Expr) (c : Code) : Code :=
   end.
 
 Definition comp (e : Expr) : Code := comp' e HALT.
+
+(** * Virtual Machine *)
 
 Inductive Elem : Set :=
 | VAL : nat -> Elem 
@@ -85,7 +94,10 @@ where "x ==> y" := (VM x y).
 
 Hint Constructors VM.
 
+(** * Calculation *)
+
 (** Boilerplate to import calculation tactics *)
+
 Module VM <: Preorder.
 Definition Conf := Conf.
 Definition VM := VM.
@@ -93,11 +105,16 @@ End VM.
 Module VMCalc := Calculation VM.
 Import VMCalc.
 
+(** Specification of the compiler *)
+
 Theorem spec e c k s : ⟨comp' e c, k, s⟩
                        =>> match eval e s with
                             | Some (n, s') => ⟨c , VAL n :: k, s'⟩
                             | None => ⟪k⟫
                            end.
+
+(** Setup the induction proof *)
+
 Proof.
   intros.
   generalize dependent c.
@@ -105,12 +122,17 @@ Proof.
   generalize dependent s.
   induction e;intros.
 
+(** Calculation of the compiler *)
+
+(** - [e = Val n]: *)
+
   begin
   ⟨c, VAL n :: k, s⟩.
   <== { apply vm_push }
   ⟨PUSH n c, k, s⟩.
   [].
 
+(** - [e = Add e1 e2]: *)
   
   begin
    (match eval e1 s with
@@ -145,12 +167,15 @@ Proof.
       ⟨ comp' e1 (comp' e2 (ADD c)), k, s ⟩.
   [].
 
+(** - [e = Throw]: *)
 
   begin
     ⟪k⟫.
   <== { apply vm_fail }
     ⟨ FAIL, k, s⟩.
   [].
+
+(** - [e = Catch e1 e2]: *)
 
   begin
     (match eval e1 s with
@@ -181,11 +206,15 @@ Proof.
        ⟨ MARK (comp' e2 c) (comp' e1 (UNMARK c)),  k, s⟩.
    [].
 
+(** - [e = Get]: *)
+
    begin
      ⟨ c, VAL s :: k, s⟩.
    <== { apply vm_load }
      ⟨ LOAD c, k, s⟩.
    [].
+
+(** - [e = Put e1 e2]: *)
 
    begin
      (match eval e1 s with
@@ -209,7 +238,8 @@ Proof.
        ⟨comp' e1 (SAVE (comp' e2 c)), k, s⟩.
    [].
 Qed.
-  
+
+(** * Soundness *)
 
 (** Since the VM is defined as a small step operational semantics, we
 have to prove that the VM is deterministic and does not get stuck in

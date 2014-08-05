@@ -1,7 +1,11 @@
-(** Calculation of a compiler for the lambda calculus + arithmetic. *)
+(** Calculation of a compiler for the call-by-value lambda calculus +
+arithmetic. *)
+
 Require Import List.
 Require Import ListIndex.
 Require Import Tactics.
+
+(** * Syntax *)
 
 Inductive Expr : Set := 
 | Val : nat -> Expr 
@@ -9,6 +13,8 @@ Inductive Expr : Set :=
 | Var : nat -> Expr
 | Abs : Expr -> Expr
 | App : Expr -> Expr -> Expr.
+
+(** * Semantics *)
 
 (** The evaluator for this language is given as follows (as in the
 paper):
@@ -46,6 +52,8 @@ Inductive eval : Expr -> Env -> Value -> Prop :=
 | eval_app e e' x x' x'' y y' : x ⇓[e] Clo x' e' -> y ⇓[e] y' -> x' ⇓[y' :: e'] x'' -> App x y ⇓[e] x''
 where "x ⇓[ e ] y" := (eval x e y).
 
+(** * Compiler *)
+
 Inductive Code : Set :=
 | PUSH : nat -> Code -> Code
 | ADD : Code -> Code
@@ -65,6 +73,8 @@ Fixpoint comp' (e : Expr) (c : Code) : Code :=
   end.
 
 Definition comp (e : Expr) : Code := comp' e HALT.
+
+(** * Virtual Machine *)
 
 Inductive Value' : Set :=
 | Num' : nat -> Value'
@@ -95,6 +105,7 @@ Inductive VM : Conf -> Conf -> Prop :=
 | vm_abs c c' s e : ⟨ABS c' c, s, e ⟩ ==> ⟨c, VAL (Clo' c' e) :: s, e ⟩
 where "x ==> y" := (VM x y).
 
+(** Conversion functions from semantics to VM *)
 
 Fixpoint conv (v : Value) : Value' :=
   match v with
@@ -104,7 +115,10 @@ Fixpoint conv (v : Value) : Value' :=
 
 Definition convE : Env -> Env' := map conv.
 
+(** * Calculation *)
+
 (** Boilerplate to import calculation tactics *)
+
 Module VM <: Preorder.
 Definition Conf := Conf.
 Definition VM := VM.
@@ -112,20 +126,30 @@ End VM.
 Module VMCalc := Calculation VM.
 Import VMCalc.
 
+(** Specification of the compiler *)
+
 Theorem spec p e r c s : p ⇓[e] r -> ⟨comp' p c, s, convE e⟩ 
                                  =>> ⟨c , VAL (conv r) :: s, convE e⟩.
+
+(** Setup the induction proof *)
+
 Proof.
   intros.
   generalize dependent c.
   generalize dependent s.
   induction H;intros.
 
+(** Calculation of the compiler *)
+
+(** - [Val n ⇓[e] Num n]: *)
 
   begin
   ⟨c, VAL (Num' n) :: s, convE e⟩.
   <== { apply vm_push }
   ⟨PUSH n c, s, convE e⟩.
   [].
+
+(** - [Add x y ⇓[e] Num (m + n)]: *)
 
   begin
     ⟨c, VAL (Num' (m + n)) :: s, convE e ⟩.
@@ -137,17 +161,23 @@ Proof.
   ⟨comp' x (comp' y (ADD c)), s, convE e⟩.
   [].
 
+(** - [Var i ⇓[e] v] *)
+
   begin
     ⟨c, VAL (conv v) :: s, convE e ⟩.
   <== {apply vm_lookup; unfold convE; erewrite nth_map; eauto}
     ⟨LOOKUP i c, s, convE e ⟩.
    [].
 
+(** - [Abs x ⇓[e] Clo x e] *)
+
   begin
     ⟨c, VAL (Clo' (comp' x RET) (convE e)) :: s, convE e ⟩.
   <== { apply vm_abs }
     ⟨ABS (comp' x RET) c, s, convE e ⟩.
   [].
+
+(** - [App x y ⇓[e] x''] *)
 
   begin
     ⟨c, VAL (conv x'') :: s, convE e ⟩.
@@ -168,7 +198,7 @@ Proof.
   [].
 Qed.
   
-  
+(** * Soundness *)
 
 Lemma determ_vm : determ VM.
   intros C C1 C2 V. induction V; intro V'; inversion V'; subst; try reflexivity.

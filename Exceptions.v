@@ -1,6 +1,9 @@
 (** Calculation for arithmetic + exceptions. *)
+
 Require Import List.
 Require Import Tactics.
+
+(** * Syntax *)
 
 Inductive Expr : Set := 
 | Val : nat -> Expr 
@@ -8,7 +11,7 @@ Inductive Expr : Set :=
 | Throw : Expr
 | Catch : Expr -> Expr -> Expr.
 
-
+(** * Semantics *)
 
 Fixpoint eval (e: Expr) : option nat :=
   match e with
@@ -27,6 +30,7 @@ Fixpoint eval (e: Expr) : option nat :=
                    end
   end.
 
+(** * Compiler *)
 
 Inductive Code : Set :=
 | PUSH : nat -> Code -> Code
@@ -45,6 +49,8 @@ Fixpoint comp' (e : Expr) (c : Code) : Code :=
   end.
 
 Definition comp (e : Expr) : Code := comp' e HALT.
+
+(** * Virtual Machine *)
 
 Inductive Elem : Set :=
 | VAL : nat -> Elem 
@@ -72,7 +78,10 @@ where "x ==> y" := (VM x y).
 
 Hint Constructors VM.
 
+(** * Calculation *)
+
 (** Boilerplate to import calculation tactics *)
+
 Module VM <: Preorder.
 Definition Conf := Conf.
 Definition VM := VM.
@@ -80,16 +89,25 @@ End VM.
 Module VMCalc := Calculation VM.
 Import VMCalc.
 
+(** Specification of the compiler *)
+
 Theorem spec e c s : ⟨comp' e c, s⟩
                        =>> match eval e with
                             | Some n => ⟨c , VAL n :: s⟩
                             | None => ⟪ s ⟫
                            end.
+
+(** Setup the induction proof *)
+
 Proof.
   intros.
   generalize dependent c.
   generalize dependent s.
   induction e;intros.
+
+(** Calculation of the compiler *)
+
+(** - [e = Val n]: *)
 
   begin
   ⟨c, VAL n :: s⟩.
@@ -97,6 +115,7 @@ Proof.
   ⟨PUSH n c, s⟩.
   [].
 
+(** - [e = Add e1 e2]: *)
 
   begin
    (match eval e1 with
@@ -131,12 +150,15 @@ Proof.
       ⟨ comp' e1 (comp' e2 (ADD c)), s ⟩.
   [].
 
+(** - [e = Throw]: *)
 
   begin
     ⟪s⟫.
   <== { apply vm_fail }
     ⟨ FAIL, s⟩.
   [].
+
+(** - [e = Catch e1 e2]: *)
 
   begin
     (match eval e1 with
@@ -168,6 +190,8 @@ Proof.
    [].
 
 Qed.
+
+(** * Soundness *)
   
 (** Since the VM is defined as a small step operational semantics, we
 have to prove that the VM is deterministic and does not get stuck in

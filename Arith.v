@@ -1,17 +1,23 @@
 (** Calculation of the simple arithmetic language. *)
+
 Require Import List.
 Require Import Tactics.
+
+(** * Syntax *)
 
 Inductive Expr : Set := 
 | Val : nat -> Expr 
 | Add : Expr -> Expr -> Expr.
 
+(** * Semantics *)
 
 Fixpoint eval (e: Expr) : nat :=
   match e with
     | Val n => n
     | Add x y => eval x + eval y
   end.
+
+(** * Compiler *)
 
 Inductive Code : Set :=
 | PUSH : nat -> Code -> Code
@@ -26,6 +32,8 @@ Fixpoint comp' (e : Expr) (c : Code) : Code :=
 
 Definition comp (e : Expr) : Code := comp' e HALT.
 
+(** * Virtual Machine *)
+
 Definition Stack : Set := list nat.
 
 Definition Conf : Set := prod Code  Stack.
@@ -36,7 +44,10 @@ Inductive VM : Conf -> Conf -> Prop :=
 | vm_add c s m n : (ADD c, m :: n :: s) ==> (c, (n + m) :: s)
 where "x ==> y" := (VM x y).
 
+(** * Calculation *)
+
 (** Boilerplate to import calculation tactics *)
+
 Module VM <: Preorder.
 Definition Conf := Conf.
 Definition VM := VM.
@@ -44,18 +55,29 @@ End VM.
 Module VMCalc := Calculation VM.
 Import VMCalc.
 
+(** Specification of the compiler *)
+
 Theorem spec e c s : (comp' e c, s) =>> (c , eval e :: s).
+
+(** Setup the induction proof *)
+
 Proof.
   intros.
   generalize dependent c.
   generalize dependent s.
   induction e;intros.
 
+(** Calculation of the compiler *)
+
+(** - [e = Val n]: *)
+
   begin
   (c, n :: s).
   <== { apply vm_push }
   (PUSH n c, s).
   [].
+
+(** - [e = Add e1 e2]: *)
 
   begin
   (c, eval e1 + eval e2 :: s).
@@ -68,6 +90,8 @@ Proof.
   [].
 Qed.
 
+
+(** * Soundness *)
   
 (** Since the VM is defined as a small step operational semantics, we
 have to prove that the VM is deterministic and does not get stuck in

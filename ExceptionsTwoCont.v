@@ -1,6 +1,9 @@
 (** Calculation for arithmetic + exceptions with two continuations. *)
+
 Require Import List.
 Require Import Tactics.
+
+(** * Syntax *)
 
 Inductive Expr : Set := 
 | Val : nat -> Expr 
@@ -8,6 +11,7 @@ Inductive Expr : Set :=
 | Throw : Expr
 | Catch : Expr -> Expr -> Expr.
 
+(** * Semantics *)
 
 Fixpoint eval (e: Expr) : option nat :=
   match e with
@@ -26,6 +30,7 @@ Fixpoint eval (e: Expr) : option nat :=
                    end
   end.
 
+(** * Compiler *)
 
 Inductive Code : Set :=
 | PUSH : nat -> Code -> Code
@@ -42,6 +47,8 @@ Fixpoint comp' (e : Expr) (s : Code) (f : Code) : Code :=
   end.
 
 Definition comp (e : Expr) : Code := comp' e HALT HALT.
+
+(** * Virtual Machine *)
 
 Inductive Elem : Set :=
 | VAL : nat -> Elem 
@@ -62,7 +69,10 @@ where "x ==> y" := (VM x y).
 
 Hint Constructors VM.
 
+(** * Calculation *)
+
 (** Boilerplate to import calculation tactics *)
+
 Module VM <: Preorder.
 Definition Conf := Conf.
 Definition VM := VM.
@@ -70,11 +80,16 @@ End VM.
 Module VMCalc := Calculation VM.
 Import VMCalc.
 
+(** Specification of the compiler *)
+
 Theorem spec e s f k : ⟨comp' e s f, k⟩
                        =>> match eval e with
                             | Some n => ⟨s , VAL n :: k⟩
                             | None => ⟨f , k⟩
                            end.
+
+(** Setup the induction proof *)
+
 Proof.
   intros.
   generalize dependent s.
@@ -82,12 +97,17 @@ Proof.
   generalize dependent k.
   induction e;intros.
 
+(** Calculation of the compiler *)
+
+(** - [e = Val n]: *)
+
   begin
   ⟨s, VAL n :: k⟩.
   <== { apply vm_push }
   ⟨PUSH n s, k⟩.
   [].
 
+(** - [e = Add e1 e2]: *)
   
   begin
    (match eval e1 with
@@ -122,10 +142,13 @@ Proof.
       ⟨ comp' e1 (comp' e2 (ADD s) (POP f)) f, k ⟩.
   [].
 
+(** - [e = Throw]: *)
 
   begin
     ⟨ f, k⟩.
   [].
+
+(** - [e = Catch e1 e2]: *)
 
   begin
     (match eval e1 with
@@ -144,6 +167,8 @@ Proof.
        ⟨ comp' e1 s (comp' e2 s f) , k⟩.
    [].
 Qed.
+
+(** * Soundness *)
   
 (** Since the VM is defined as a small step operational semantics, we
 have to prove that the VM is deterministic and does not get stuck in

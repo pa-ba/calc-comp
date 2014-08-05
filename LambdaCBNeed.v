@@ -1,8 +1,12 @@
-(** Calculation of a compiler for the lambda calculus + arithmetic. *)
+(** Calculation of a compiler for the call-by-need lambda calculus +
+arithmetic. *)
+
 Require Import List.
 Require Import ListIndex.
 Require Import Tactics.
 Require Import Heap.
+
+(** * Syntax *)
 
 Inductive Expr : Set := 
 | Val : nat -> Expr 
@@ -10,6 +14,8 @@ Inductive Expr : Set :=
 | Var : nat -> Expr
 | Abs : Expr -> Expr
 | App : Expr -> Expr -> Expr.
+
+(** * Semantics *)
 
 (** The evaluator for this language is taken from Ager et al. "A
 functional correspondence between call-by-need evaluators and lazy
@@ -88,6 +94,8 @@ Inductive eval : Expr -> Env -> Heap -> Heap -> Value -> Prop :=
                               x' ⇓[l :: e',h'',h'''] x'' -> App x y ⇓[e,h,h'''] x''
 where "x ⇓[ e , h , h' ] y" := (eval x e h h' y).
 
+(** * Compiler *)
+
 Inductive Code : Set :=
 | PUSH : nat -> Code -> Code
 | ADD : Code -> Code
@@ -109,6 +117,8 @@ Fixpoint comp' (e : Expr) (c : Code) : Code :=
 
 Definition comp (e : Expr) : Code := comp' e HALT.
 
+(** * Virtual Machine *)
+
 Inductive Value' : Set :=
 | Num' : nat -> Value'
 | Clo' : Code -> Env -> Value'.
@@ -118,8 +128,6 @@ Inductive HElem' : Set  :=
   | value' : Value' -> HElem'.
 
 Definition Heap' := Heap.Heap HElem'.
-
-
 
 Inductive Elem : Set :=
 | VAL : Value' -> Elem 
@@ -150,6 +158,7 @@ Inductive VM : Conf -> Conf -> Prop :=
 | vm_abs c c' s e h : ⟨ABS c' c, s, e, h⟩ ==> ⟨c, VAL (Clo' c' e) :: s, e, h⟩ 
 where "x ==> y" := (VM x y).
 
+(** Conversion functions from semantics to VM *)
 
 Fixpoint convV (v : Value) : Value' :=
   match v with
@@ -165,8 +174,10 @@ Fixpoint convHE (t : HElem) : HElem' :=
 
 Definition convH : Heap -> Heap' := hmap convHE.
 
+(** * Calculation *)
 
 (** Boilerplate to import calculation tactics *)
+
 Module VM <: Preorder.
 Definition Conf := Conf.
 Definition VM := VM.
@@ -174,20 +185,30 @@ End VM.
 Module VMCalc := Calculation VM.
 Import VMCalc.
 
+(** Specification of the compiler *)
+
 Theorem spec p e r c s h h' : p ⇓[e,h,h'] r -> ⟨comp' p c, s, e, convH h⟩ 
                                  =>> ⟨c , VAL (convV r) :: s, e, convH h'⟩.
+
+(** Setup the induction proof *)
+
 Proof.
   intros.
   generalize dependent c.
   generalize dependent s.
   induction H;intros.
 
+(** Calculation of the compiler *)
+
+(** - [Val n ⇓[e,h,h] Num n]: *)
 
   begin
   ⟨c, VAL (Num' n) :: s, e, convH h⟩.
   <== { apply vm_push }
   ⟨PUSH n c, s, e, convH h⟩.
   [].
+
+(** - [Add x y ⇓[e,h,h''] Num (m + n)]: *)
 
   begin
     ⟨c, VAL (Num' (m + n)) :: s, e, convH h'' ⟩.
@@ -199,6 +220,7 @@ Proof.
   ⟨comp' x (comp' y (ADD c)), s, e, convH h⟩.
   [].
 
+(** - [Var i ⇓[e,h,update h' l (value v)] v] *)
 
   assert (deref (convH h) l = Some (thunk' (comp' x WRITE) e'))
     by (unfold convH; rewrite hmap_deref; rewrite H0; reflexivity).
@@ -214,6 +236,8 @@ Proof.
     ⟨LOOKUP i c, s, e, convH h ⟩.
   [].
 
+(** - [Var i ⇓[e,h,h] v] *)
+
   assert (deref (convH h) l = Some (value' (convV v)))
     by (unfold convH; rewrite hmap_deref; rewrite H0; reflexivity).
   begin
@@ -222,6 +246,7 @@ Proof.
     ⟨LOOKUP i c, s, e, convH h ⟩.
   [].
 
+(** - [Abs x ⇓[e,h,h] Clo x e] *)
 
   begin
     ⟨c, VAL (Clo' (comp' x RET) e) :: s, e, convH h ⟩.
@@ -229,7 +254,7 @@ Proof.
     ⟨ABS (comp' x RET) c, s, e, convH h ⟩.
   [].
   
-
+(** - [App x y ⇓[e,h,h'''] x''] *)
   
   assert (alloc (convH h') (convHE (thunk y e)) = (convH h'', l)).
   unfold convH. eapply hmap_alloc in H0. apply H0.
@@ -249,7 +274,10 @@ Proof.
   [].
 Qed.
     
+(** * Soundness *)
 
+
+(** Custom tactic to apply inversion *)
 Ltac inv := match goal with
               | [H1 : nth ?e ?i = Some ?l1,
                  H2 : nth ?e ?i = Some ?l2 |- _] => rewrite H1 in H2; inversion H2; subst; clear H1 H2
