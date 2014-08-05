@@ -48,14 +48,16 @@ Inductive Code : Set :=
 | ABS : Code -> Code -> Code
 | HALT : Code.
 
-Fixpoint comp (e : Expr) (c : Code) : Code :=
+Fixpoint comp' (e : Expr) (c : Code) : Code :=
   match e with
     | Val n => PUSH n c
-    | Add x y => comp x (comp y (ADD c))
+    | Add x y => comp' x (comp' y (ADD c))
     | Var i => LOOKUP i c
-    | App x y => comp x (APP (comp y WRITE) c)
-    | Abs x => ABS (comp x RET) c
+    | App x y => comp' x (APP (comp' y WRITE) c)
+    | Abs x => ABS (comp' x RET) c
   end.
+
+Definition comp (e : Expr) : Code := comp' e HALT.
 
 Inductive Value' : Set :=
 | Num' : nat -> Value'
@@ -102,13 +104,13 @@ where "x ==> y" := (VM x y).
 Fixpoint convV (v : Value) : Value' :=
   match v with
     | Num n => Num' n
-    | Fun x e => Fun' (comp x RET) e
+    | Fun x e => Fun' (comp' x RET) e
   end.
 
 Fixpoint convHE (t : HElem) : HElem' :=
   match t with
     | value v => value' (convV v)
-    | thunk x e => thunk' (comp x WRITE) e
+    | thunk x e => thunk' (comp' x WRITE) e
   end.
 
 Definition convH : Heap -> Heap' := hmap convHE.
@@ -122,7 +124,7 @@ End VM.
 Module VMCalc := Calculation VM.
 Import VMCalc.
 
-Theorem spec p e r c s h h' : p ⇓[e,h,h'] r -> ⟨comp p c, s, e, convH h⟩ 
+Theorem spec p e r c s h h' : p ⇓[e,h,h'] r -> ⟨comp' p c, s, e, convH h⟩ 
                                  =>> ⟨c , VAL (convV r) :: s, e, convH h'⟩.
 Proof.
   intros.
@@ -142,13 +144,13 @@ Proof.
   <== { apply vm_add }
     ⟨ADD c, VAL (Num' n) :: VAL (Num' m) :: s, e, convH h''⟩. 
   <<= { apply IHeval2 }
-  ⟨comp y (ADD c), VAL (Num' m) :: s, e, convH h'⟩.
+  ⟨comp' y (ADD c), VAL (Num' m) :: s, e, convH h'⟩.
   <<= { apply IHeval1 }
-  ⟨comp x (comp y (ADD c)), s, e, convH h⟩.
+  ⟨comp' x (comp' y (ADD c)), s, e, convH h⟩.
   [].
 
 
-  assert (deref (convH h) l = Some (thunk' (comp x WRITE) e'))
+  assert (deref (convH h) l = Some (thunk' (comp' x WRITE) e'))
     by (unfold convH; rewrite hmap_deref; rewrite H0; reflexivity).
   begin
     ⟨c, VAL (convV v) :: s, e, convH (update h' l (value v)) ⟩.
@@ -157,7 +159,7 @@ Proof.
   <== {apply vm_write}
     ⟨WRITE, VAL (convV v) :: THU l c e :: s, e', convH h'⟩.
   <<= {apply IHeval}
-    ⟨comp x WRITE, THU l c e :: s, e', convH h⟩.
+    ⟨comp' x WRITE, THU l c e :: s, e', convH h⟩.
   <== {eapply vm_lookup_thunk}
     ⟨LOOKUP i c, s, e, convH h ⟩.
   [].
@@ -172,9 +174,9 @@ Proof.
 
 
   begin
-    ⟨c, VAL (Fun' (comp x RET) e) :: s, e, convH h ⟩.
+    ⟨c, VAL (Fun' (comp' x RET) e) :: s, e, convH h ⟩.
   <== { apply vm_abs }
-    ⟨ABS (comp x RET) c, s, e, convH h ⟩.
+    ⟨ABS (comp' x RET) c, s, e, convH h ⟩.
   [].
   
 
@@ -187,13 +189,13 @@ Proof.
   <== { apply vm_ret }
     ⟨RET, VAL (convV x'') :: FUN c e :: s, l :: e', convH h''' ⟩.
   <<= { apply IHeval2 }
-    ⟨comp x' RET, FUN c e :: s, l :: e', convH h'' ⟩.
+    ⟨comp' x' RET, FUN c e :: s, l :: e', convH h'' ⟩.
   <== {apply vm_app}
-    ⟨APP (comp y WRITE) c, VAL (Fun' (comp x' RET) e') :: s, e, convH h'⟩.
+    ⟨APP (comp' y WRITE) c, VAL (Fun' (comp' x' RET) e') :: s, e, convH h'⟩.
    = {reflexivity}
-    ⟨APP (comp y WRITE) c, VAL (convV (Fun x' e')) :: s, e, convH h'⟩.
+    ⟨APP (comp' y WRITE) c, VAL (convV (Fun x' e')) :: s, e, convH h'⟩.
   <<= { apply IHeval1 }
-    ⟨comp x (APP (comp y WRITE) c), s, e, convH h⟩.
+    ⟨comp' x (APP (comp' y WRITE) c), s, e, convH h⟩.
   [].
 Qed.
     
@@ -215,7 +217,7 @@ Qed.
 
 Definition terminates (p : Expr) : Prop := exists r h, p ⇓[nil,empty,h] r.
 
-Theorem sound p s C : terminates p -> ⟨comp p HALT, s, nil, empty⟩ =>>! C -> 
+Theorem sound p s C : terminates p -> ⟨comp p, s, nil, empty⟩ =>>! C -> 
                           exists r h, C = ⟨HALT , VAL (convV r) :: s, nil, convH h⟩ 
                                     /\ p ⇓[nil, empty, h] r.
 Proof.

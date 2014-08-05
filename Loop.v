@@ -58,6 +58,7 @@ Fixpoint compS (e : Stmt) (c : Code) : Code :=
     | While e1 e2 => ENTER (compE e1 (JMP c (compS e2 LOOP)))
   end.
 
+Definition comp (e : Stmt) : Code := compS e HALT.
 
 Inductive Elem : Set :=
 | VAL : nat -> Elem 
@@ -186,7 +187,7 @@ Qed.
 
 Definition terminates (e : Stmt) : Prop := exists s, e ↓[0] s.
 
-Theorem sound e C : terminates e -> ⟨compS e HALT, nil, 0⟩ =>>! C -> 
+Theorem sound e C : terminates e -> ⟨comp e, nil, 0⟩ =>>! C -> 
                           exists s, C = ⟨HALT, nil, s⟩ /\ e ↓[0] s.
 Proof.
   unfold terminates. intros. destruct H as [s T].
