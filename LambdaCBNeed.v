@@ -1,4 +1,4 @@
-(* Calculation of a compiler for the lambda calculus + arithmetic. *)
+(** Calculation of a compiler for the lambda calculus + arithmetic. *)
 Require Import List.
 Require Import ListIndex.
 Require Import Tactics.
@@ -11,11 +11,61 @@ Inductive Expr : Set :=
 | Abs : Expr -> Expr
 | App : Expr -> Expr -> Expr.
 
+(** The evaluator for this language is taken from Ager et al. "A
+functional correspondence between call-by-need evaluators and lazy
+abstract machines". We use Haskell syntax to define the
+evaluator. Moreover, we use an abstract interface to a heap
+implementation:
+<<
+type Heap a
+type Loc
+
+empty :: Heap a
+deref :: Heap a -> Loc -> a
+update :: Heap a -> Loc -> a -> Heap a
+alloc :: Heap a -> a -> (Heap a, Loc)
+>>
+Moreover, we assume that `Heap` forms a functor with an associated function
+<<
+hmap :: (a -> b) -> Heap a -> Heap b
+>>
+which in addition to functoriality also satisfies the following laws:
+<<
+hmap f empty = empty                                             (hmap-empty)
+deref (hmap f h) l = f (deref h l)                               (hmap-deref)
+hmap f (update h l e) = update (hmap f h) l (f e)                (hmap-update)
+alloc (hmap f h) (f e) = (h', l) <=> alloc h e = (hmap f h', l)  (hmap-alloc)
+>>
+
+The evaluator itself is defined as follows:
+<<
+type Env   = [Loc]
+data HElem = Thunk (Heap HElem -> (Value, Heap HElem)) | Value Value
+data Value = Num Int | Clo (Loc -> Heap HElem -> (Value, Heap HElem))
+	
+
+eval :: Expr -> Env -> Heap HElem -> (Value, Heap HElem)
+eval (Val n)   e h = (Num n, h)
+eval (Add x y) e h = case eval x e h of
+                       (Num n, h') -> case eval y e h' of
+                                        (Num m, h'') -> (Num (n + m), h'')
+eval (Var i)   e h = case deref h (e !! i) of
+                       Thunk t -> let (v, h') = t h
+                                  in (v, update h' (e !! i) (Value v))
+                       Value v -> (v, h)
+eval (Abs x)   e h = (Clo (\ l h' -> eval x (l : e) h') , h)
+eval (App x y) e h = case eval x e h of
+                       (Clo , h') -> let (h'',l) = alloc h' (Thunk (\h -> eval y e h))
+                                     in f l h''
+>>
+After defunctionalisation and translation into relational form we
+obtain the semantics below.  *)
+
 Definition Env : Set := list Loc.
 
 Inductive Value : Set :=
 | Num : nat -> Value
-| Fun : Expr -> Env -> Value.
+| Clo : Expr -> Env -> Value.
 
 Inductive HElem : Set  :=
   | thunk : Expr -> Env -> HElem
@@ -33,8 +83,8 @@ Inductive eval : Expr -> Env -> Heap -> Heap -> Value -> Prop :=
                           Var i ⇓[e,h,update h' l (value v)] v
 | eval_var_val e i l v h : nth e i = Some l -> deref h l = Some (value v) -> 
                           Var i ⇓[e,h,h] v
-| eval_abs e x h : Abs x ⇓[e,h,h] Fun x e
-| eval_app e e' x x' x'' y l h h' h'' h''' : x ⇓[e,h,h'] Fun x' e' -> alloc h' (thunk y e) = (h'',l) ->
+| eval_abs e x h : Abs x ⇓[e,h,h] Clo x e
+| eval_app e e' x x' x'' y l h h' h'' h''' : x ⇓[e,h,h'] Clo x' e' -> alloc h' (thunk y e) = (h'',l) ->
                               x' ⇓[l :: e',h'',h'''] x'' -> App x y ⇓[e,h,h'''] x''
 where "x ⇓[ e , h , h' ] y" := (eval x e h h' y).
 
@@ -61,7 +111,7 @@ Definition comp (e : Expr) : Code := comp' e HALT.
 
 Inductive Value' : Set :=
 | Num' : nat -> Value'
-| Fun' : Code -> Env -> Value'.
+| Clo' : Code -> Env -> Value'.
 
 Inductive HElem' : Set  :=
   | thunk' : Code -> Env -> HElem'
@@ -95,16 +145,16 @@ Inductive VM : Conf -> Conf -> Prop :=
                                ⟨LOOKUP i c, s, e, h⟩ ==> ⟨c, VAL v :: s, e, h⟩
 | vm_ret v c e e' h s  : ⟨RET, VAL v :: FUN c e :: s, e', h⟩ ==> ⟨c, VAL v :: s, e, h⟩
 | vm_app c c' c'' e e' s h h' l : alloc h (thunk' c' e) = (h',l) -> 
-                           ⟨APP c' c, VAL (Fun' c'' e') :: s, e, h⟩
+                           ⟨APP c' c, VAL (Clo' c'' e') :: s, e, h⟩
                             ==> ⟨c'', FUN c e :: s, l :: e', h'⟩
-| vm_abs c c' s e h : ⟨ABS c' c, s, e, h⟩ ==> ⟨c, VAL (Fun' c' e) :: s, e, h⟩ 
+| vm_abs c c' s e h : ⟨ABS c' c, s, e, h⟩ ==> ⟨c, VAL (Clo' c' e) :: s, e, h⟩ 
 where "x ==> y" := (VM x y).
 
 
 Fixpoint convV (v : Value) : Value' :=
   match v with
     | Num n => Num' n
-    | Fun x e => Fun' (comp' x RET) e
+    | Clo x e => Clo' (comp' x RET) e
   end.
 
 Fixpoint convHE (t : HElem) : HElem' :=
@@ -116,7 +166,7 @@ Fixpoint convHE (t : HElem) : HElem' :=
 Definition convH : Heap -> Heap' := hmap convHE.
 
 
-(* Boilerplate to import calculation tactics *)
+(** Boilerplate to import calculation tactics *)
 Module VM <: Preorder.
 Definition Conf := Conf.
 Definition VM := VM.
@@ -174,7 +224,7 @@ Proof.
 
 
   begin
-    ⟨c, VAL (Fun' (comp' x RET) e) :: s, e, convH h ⟩.
+    ⟨c, VAL (Clo' (comp' x RET) e) :: s, e, convH h ⟩.
   <== { apply vm_abs }
     ⟨ABS (comp' x RET) c, s, e, convH h ⟩.
   [].
@@ -191,9 +241,9 @@ Proof.
   <<= { apply IHeval2 }
     ⟨comp' x' RET, FUN c e :: s, l :: e', convH h'' ⟩.
   <== {apply vm_app}
-    ⟨APP (comp' y WRITE) c, VAL (Fun' (comp' x' RET) e') :: s, e, convH h'⟩.
+    ⟨APP (comp' y WRITE) c, VAL (Clo' (comp' x' RET) e') :: s, e, convH h'⟩.
    = {reflexivity}
-    ⟨APP (comp' y WRITE) c, VAL (convV (Fun x' e')) :: s, e, convH h'⟩.
+    ⟨APP (comp' y WRITE) c, VAL (convV (Clo x' e')) :: s, e, convH h'⟩.
   <<= { apply IHeval1 }
     ⟨comp' x (APP (comp' y WRITE) c), s, e, convH h⟩.
   [].

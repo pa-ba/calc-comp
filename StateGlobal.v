@@ -1,4 +1,4 @@
-(* Calculation for arithmetic + exceptions. *)
+(** Calculation for arithmetic + exceptions. *)
 Require Import List.
 Require Import Tactics.
 
@@ -85,7 +85,7 @@ where "x ==> y" := (VM x y).
 
 Hint Constructors VM.
 
-(* Boilerplate to import calculation tactics *)
+(** Boilerplate to import calculation tactics *)
 Module VM <: Preorder.
 Definition Conf := Conf.
 Definition VM := VM.
@@ -211,7 +211,7 @@ Proof.
 Qed.
   
 
-(* Since the VM is defined as a small step operational semantics, we
+(** Since the VM is defined as a small step operational semantics, we
 have to prove that the VM is deterministic and does not get stuck in
 order to derive soundness from the above theorem. *)
 

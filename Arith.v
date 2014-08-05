@@ -1,4 +1,4 @@
-(* Calculation of the simple arithmetic language. *)
+(** Calculation of the simple arithmetic language. *)
 Require Import List.
 Require Import Tactics.
 
@@ -36,7 +36,7 @@ Inductive VM : Conf -> Conf -> Prop :=
 | vm_add c s m n : (ADD c, m :: n :: s) ==> (c, (n + m) :: s)
 where "x ==> y" := (VM x y).
 
-(* Boilerplate to import calculation tactics *)
+(** Boilerplate to import calculation tactics *)
 Module VM <: Preorder.
 Definition Conf := Conf.
 Definition VM := VM.
@@ -69,7 +69,7 @@ Proof.
 Qed.
 
   
-(* Since the VM is defined as a small step operational semantics, we
+(** Since the VM is defined as a small step operational semantics, we
 have to prove that the VM is deterministic and does not get stuck in
 order to derive soundness from the above theorem. *)
 

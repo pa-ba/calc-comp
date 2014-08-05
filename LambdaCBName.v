@@ -1,4 +1,5 @@
-(* Calculation of a compiler for the lambda calculus + arithmetic. *)
+(** Calculation of a compiler for the lambda calculus + arithmetic. *)
+
 Require Import List.
 Require Import ListIndex.
 Require Import Tactics.
@@ -9,6 +10,29 @@ Inductive Expr : Set :=
 | Var : nat -> Expr
 | Abs : Expr -> Expr
 | App : Expr -> Expr -> Expr.
+
+(** We start with the evaluator for this language, which is taken from
+Ager et al. "A functional correspondence between evaluators and
+abstract machines" (we use Haskell syntax to describe the evaluator):
+<<
+type Env   = [Thunk]
+data Thunk = Thunk (() -> Value)
+data Value = Num Int | Clo (Thunk -> Value)
+
+
+eval :: Expr -> Env -> Value
+eval (Val n)   e = Num n
+eval (Add x y) e = case eval x e of
+                     Num n -> case eval y e of
+                                Num m -> Num (n + m)
+eval (Var i)   e = case e !! i of
+                     Thunk t -> t ()
+eval (Abs x)   e = Clo (\t -> eval x (t : e))
+eval (App x y) e = case eval x e of
+                     Clo f -> f (Thunk (\_ -> eval y e))
+>>
+After defunctionalisation and translation into relational form we
+obtain the semantics below.  *)
 
 Inductive Thunk : Set  :=
   | thunk : Expr -> list Thunk -> Thunk.
@@ -99,7 +123,7 @@ Fixpoint convV (v : Value) : Value' :=
   end.
 
 
-(* Boilerplate to import calculation tactics *)
+(** Boilerplate to import calculation tactics *)
 Module VM <: Preorder.
 Definition Conf := Conf.
 Definition VM := VM.

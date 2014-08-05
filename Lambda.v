@@ -1,4 +1,4 @@
-(* Calculation of a compiler for the lambda calculus + arithmetic. *)
+(** Calculation of a compiler for the lambda calculus + arithmetic. *)
 Require Import List.
 Require Import ListIndex.
 Require Import Tactics.
@@ -9,6 +9,26 @@ Inductive Expr : Set :=
 | Var : nat -> Expr
 | Abs : Expr -> Expr
 | App : Expr -> Expr -> Expr.
+
+(** The evaluator for this language is given as follows (as in the
+paper):
+<<
+type Env = [Value]
+data Value =  Num Int | Fun (Value -> Value)
+
+
+eval ::  Expr -> Env -> Value
+eval (Val n) e   = Num n
+eval (Add x y) e = case eval x e of
+                     Num n -> case eval y e of
+                                Num m -> Num (n+m)
+eval (Var i) e   = e !! i
+eval (Abs x) e   = Fun (\v -> eval x (v:e))
+eval (App x y) e = case eval x e of
+                     Fun f -> f (eval y e)
+>>
+After defunctionalisation and translation into relational form we
+obtain the semantics below. *)
 
 Inductive Value : Set :=
 | Num : nat -> Value
@@ -84,7 +104,7 @@ Fixpoint conv (v : Value) : Value' :=
 
 Definition convE : Env -> Env' := map conv.
 
-(* Boilerplate to import calculation tactics *)
+(** Boilerplate to import calculation tactics *)
 Module VM <: Preorder.
 Definition Conf := Conf.
 Definition VM := VM.

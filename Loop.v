@@ -1,4 +1,4 @@
-(* Calculation of a compiler for the lambda calculus + arithmetic. *)
+(** Calculation of a compiler for the lambda calculus + arithmetic. *)
 Require Import List.
 Require Import ListIndex.
 Require Import Tactics.
@@ -85,7 +85,7 @@ Inductive VM : Conf -> Conf -> Prop :=
 | vm_enter c k s : ⟨ENTER c, k, s⟩ ==> ⟨c, CON (ENTER c) :: k, s⟩
 where "x ==> y" := (VM x y).
 
-(* Boilerplate to import calculation tactics *)
+(** Boilerplate to import calculation tactics *)
 Module VM <: Preorder.
 Definition Conf := Conf.
 Definition VM := VM.
