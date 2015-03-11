@@ -76,7 +76,6 @@ Fixpoint comp' (e : Expr) (c : Code) : Code :=
     | Var i => LOOKUP i c
     | App x y => comp' x (APP (comp' y RET) c)
     | Abs x => ABS (comp' x RET) c
-
   end.
 
 Definition comp (e : Expr) : Code := comp' e HALT.
@@ -185,7 +184,7 @@ Proof.
     ⟨RET, VAL (convV v) :: CLO c (convE e) :: s, convE e'⟩.
   <<= {apply IHeval}
     ⟨comp' x RET, CLO c (convE e) :: s, convE e'⟩.
-  <== {apply vm_lookup; unfold convE; erewrite nth_map; eauto;reflexivity}
+  <== {apply vm_lookup; unfold convE; rewrite nth_map}
     ⟨LOOKUP i c, s, convE e ⟩.
   [].
 
@@ -219,8 +218,7 @@ Qed.
 (** * Soundness *)
 
 Lemma determ_vm : determ VM.
-  intros C C1 C2 V. induction V; intro V'; inversion V'; subst; try reflexivity.
-  rewrite H in H5. inversion H5. reflexivity.
+  intros C C1 C2 V. induction V; intro V'; inversion V'; subst; congruence.
 Qed.
   
 

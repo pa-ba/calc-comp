@@ -1,5 +1,10 @@
 Definition Admit {A} : A. admit. Defined.
 
+Ltac rewr_assumption := idtac; match goal with
+                          | [R: _ = _ |- _ ] => first [rewrite R| rewrite <- R]
+                        end.
+
+
 Module Type Preorder.
 
 Parameter Conf : Type.
@@ -42,11 +47,16 @@ Proof.
   intros. eapply trc_trans. eassumption. subst. apply trc_refl. 
 Qed.
 
-Ltac dist t := idtac; simpl; try solve [t;eauto|apply trc_step;t;eauto|apply trc_refl;t;eauto] ; match goal with
-                        | [ |- context [let _ := ?x in _] ] => destruct x;dist t
+Ltac smart_destruct x := first[is_var x;destruct x| let x' := fresh in remember x as x'; destruct x' ].
+
+Ltac dist t := idtac; subst; simpl; try solve [t;try rewr_assumption;auto|apply trc_step;t;eauto
+                                        |apply trc_refl;t;eauto] ; match goal with
+                        | [ H : ex _ |- _ ] => destruct H; dist t
+                        | [ H : or _ _ |- _ ] => destruct H; dist t
+                        | [ |- context [let _ := ?x in _] ] => smart_destruct x;dist t
                         | [ |- context [match ?x with 
                                           | _ => _ 
-                                        end]] => destruct x; dist t
+                                        end]] => smart_destruct x; dist t
                       end.
 
 Ltac dist_refl := dist reflexivity.

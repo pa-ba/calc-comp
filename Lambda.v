@@ -165,7 +165,7 @@ Proof.
 
   begin
     ⟨c, VAL (conv v) :: s, convE e ⟩.
-  <== {apply vm_lookup; unfold convE; erewrite nth_map; eauto}
+  <== {apply vm_lookup; unfold convE; rewrite nth_map}
     ⟨LOOKUP i c, s, convE e ⟩.
    [].
 
@@ -201,8 +201,7 @@ Qed.
 (** * Soundness *)
 
 Lemma determ_vm : determ VM.
-  intros C C1 C2 V. induction V; intro V'; inversion V'; subst; try reflexivity.
-  rewrite H in H5. inversion H5. reflexivity.
+  intros C C1 C2 V. induction V; intro V'; inversion V'; subst; congruence.
 Qed.
   
 

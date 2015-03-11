@@ -289,7 +289,7 @@ Ltac inv := match goal with
             end.
 
 Lemma determ_vm : determ VM.
-  intros C C1 C2 V. induction V; intro V'; inversion V'; subst; repeat inv; try reflexivity.
+  intros C C1 C2 V. induction V; intro V'; inversion V'; subst; repeat inv; reflexivity.
 Qed.
   
 

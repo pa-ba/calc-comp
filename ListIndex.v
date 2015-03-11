@@ -9,12 +9,11 @@ Fixpoint nth {A} (l:list A) (i:nat) : option A :=
                  end
   end.
 
-Lemma nth_map A B (r : A) l i (f : A -> B) : nth l i = Some r -> nth (map f l) i = Some (f r).
+Lemma nth_map A B l i (f : A -> B) : nth (map f l) i = option_map f (nth l i).
 Proof.
   intros.
   generalize dependent i.
-  generalize dependent r.
-  induction l; intros; simpl. inversion H.
+  induction l; intros; simpl. reflexivity.
 
-  destruct i. inversion H. reflexivity. auto.
+  destruct i; simpl;auto.
 Qed.
