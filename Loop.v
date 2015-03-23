@@ -20,23 +20,23 @@ Inductive Stmt : Set :=
 (** * Semantics *)
 
 Definition State := nat.
-Reserved Notation "x ⇓[ s ] y" (at level 80, no associativity).
+Reserved Notation "x ⇓[ q ] y" (at level 80, no associativity).
 
 Inductive eval : Expr -> State -> nat -> Prop :=
-| eval_val s n : Val n ⇓[s] n
-| eval_add s x y m n : x ⇓[s] m -> y ⇓[s] n -> Add x y ⇓[s] (m + n)
-| eval_get s : Get ⇓[s] s
-where "x ⇓[ s ] y" := (eval x s y).
+| eval_val q n : Val n ⇓[q] n
+| eval_add q x y m n : x ⇓[q] m -> y ⇓[q] n -> Add x y ⇓[q] (m + n)
+| eval_get q : Get ⇓[q] q
+where "x ⇓[ q ] y" := (eval x q y).
 
-Reserved Notation "x ↓[ s ] s'" (at level 80, no associativity).
+Reserved Notation "x ↓[ q ] q'" (at level 80, no associativity).
 
 Inductive run : Stmt -> State -> State -> Prop :=
-| run_put e s v : e ⇓[s] v -> Put e ↓[s] v
-| run_seqn e1 e2 s1 s2 s3 : e1 ↓[s1] s2 -> e2 ↓[s2] s3 -> Seqn e1 e2 ↓[s1] s3
-| run_while_exit e1 e2 s : e1 ⇓[s] 0 -> While e1 e2 ↓[s] s
-| run_while_cont v e1 e2 s1 s2 s3 : e1 ⇓[s1] v -> v > 0 -> e2 ↓[s1] s2 -> While e1 e2 ↓[s2] s3 
-                   -> While e1 e2 ↓[s1] s3
-where "x ↓[ s ] y" := (run x s y).
+| run_put e q v : e ⇓[q] v -> Put e ↓[q] v
+| run_seqn e1 e2 q1 q2 q3 : e1 ↓[q1] q2 -> e2 ↓[q2] q3 -> Seqn e1 e2 ↓[q1] q3
+| run_while_exit e1 e2 q : e1 ⇓[q] 0 -> While e1 e2 ↓[q] q
+| run_while_cont v e1 e2 q1 q2 q3 : e1 ⇓[q1] v -> v > 0 -> e2 ↓[q1] q2 -> While e1 e2 ↓[q2] q3 
+                   -> While e1 e2 ↓[q1] q3
+where "x ↓[ q ] y" := (run x q y).
 
 (** * Compiler *)
 
@@ -78,19 +78,19 @@ Definition Stack : Set := list Elem.
 Inductive Conf : Set := 
 | conf : Code -> Stack -> State -> Conf.
 
-Notation "⟨ c , k , s ⟩" := (conf c k s).
+Notation "⟨ c , s , q ⟩" := (conf c s q).
 
 Reserved Notation "x ==> y" (at level 80, no associativity).
 Inductive VM : Conf -> Conf -> Prop :=
-| vm_push n c s k :  ⟨PUSH n c, k, s⟩ ==> ⟨c, VAL n :: k, s⟩ 
-| vm_add c m n s k : ⟨ADD c, VAL n :: VAL m :: k, s⟩ 
-                        ==> ⟨c, VAL (m + n) :: k, s⟩
-| vm_get c s k : ⟨GET c, k, s⟩ ==> ⟨c, VAL s :: k, s⟩
-| vm_put c v k s : ⟨PUT c, VAL v :: k, s⟩ ==> ⟨c, k, v⟩
-| vm_loop c k s : ⟨LOOP, CON c :: k, s⟩ ==> ⟨c, k, s⟩
-| vm_jmp_yes v c c' k s : v > 0 -> ⟨JMP c' c, VAL v :: k, s⟩ ==> ⟨c, k, s⟩
-| vm_jmp_no  c c' c'' k s : ⟨JMP c' c, VAL 0 :: CON c'' :: k, s⟩ ==> ⟨c', k, s⟩
-| vm_enter c k s : ⟨ENTER c, k, s⟩ ==> ⟨c, CON (ENTER c) :: k, s⟩
+| vm_push n c q s :  ⟨PUSH n c, s, q⟩ ==> ⟨c, VAL n :: s, q⟩ 
+| vm_add c m n q s : ⟨ADD c, VAL n :: VAL m :: s, q⟩ 
+                        ==> ⟨c, VAL (m + n) :: s, q⟩
+| vm_get c q s : ⟨GET c, s, q⟩ ==> ⟨c, VAL q :: s, q⟩
+| vm_put c v s q : ⟨PUT c, VAL v :: s, q⟩ ==> ⟨c, s, v⟩
+| vm_loop c s q : ⟨LOOP, CON c :: s, q⟩ ==> ⟨c, s, q⟩
+| vm_jmp_yes v c c' s q : v > 0 -> ⟨JMP c' c, VAL v :: s, q⟩ ==> ⟨c, s, q⟩
+| vm_jmp_no  c c' c'' s q : ⟨JMP c' c, VAL 0 :: CON c'' :: s, q⟩ ==> ⟨c', s, q⟩
+| vm_enter c s q : ⟨ENTER c, s, q⟩ ==> ⟨c, CON (ENTER c) :: s, q⟩
 where "x ==> y" := (VM x y).
 
 (** * Calculation *)
@@ -105,110 +105,110 @@ Module VMCalc := Calculation VM.
 Import VMCalc.
 
 (** Specification of the compiler for expressions *)
-Theorem specExpr e s v k c : e ⇓[s] v -> ⟨compE e c, k, s⟩ 
-                                 =>> ⟨c , VAL v :: k, s⟩.
+Theorem specExpr e q v s c : e ⇓[q] v -> ⟨compE e c, s, q⟩ 
+                                 =>> ⟨c , VAL v :: s, q⟩.
 
 (** Setup the induction proof *)
 
 Proof.
   intros.
   generalize dependent c.
-  generalize dependent k.
+  generalize dependent s.
   induction H;intros.
 
 (** Calculation of the compiler for expressions *)
 
-(** - [Val n ⇓[s] n]: *)
+(** - [Val n ⇓[q] n]: *)
 
   begin
-  ⟨c, VAL n :: k, s⟩.
+  ⟨c, VAL n :: s, q⟩.
   <== { apply vm_push }
-  ⟨PUSH n c, k, s⟩.
+  ⟨PUSH n c, s, q⟩.
   [].
 
-(** - [Add x y ⇓[s] (m + n)]: *)
+(** - [Add x y ⇓[q] (m + n)]: *)
 
   begin
-    ⟨c, VAL (m + n) :: k, s ⟩.
+    ⟨c, VAL (m + n) :: s, q ⟩.
   <== { apply vm_add }
-    ⟨ADD c, VAL n :: VAL m :: k, s⟩. 
+    ⟨ADD c, VAL n :: VAL m :: s, q⟩. 
   <<= { apply IHeval2 }
-  ⟨compE y (ADD c), VAL m :: k, s⟩.
+  ⟨compE y (ADD c), VAL m :: s, q⟩.
   <<= { apply IHeval1 }
-  ⟨compE x (compE y (ADD c)), k, s⟩.
+  ⟨compE x (compE y (ADD c)), s, q⟩.
   [].
 
-(** - [Get ⇓[s] s]: *)
+(** - [Get ⇓[q] q]: *)
 
   begin
-    ⟨c, VAL s :: k, s⟩.
+    ⟨c, VAL q :: s, q⟩.
   <== {apply vm_get}
-    ⟨GET c, k, s ⟩.
+    ⟨GET c, s, q ⟩.
    [].
 Qed.
   
 (** Specification of the compiler for statements *)
-Theorem specStmt e s s' k c : e ↓[s] s' -> ⟨compS e c, k, s⟩ 
-                                 =>> ⟨c , k, s'⟩.
+Theorem specStmt e q q' s c : e ↓[q] q' -> ⟨compS e c, s, q⟩ 
+                                 =>> ⟨c , s, q'⟩.
 
 (** Setup the induction proof *)
 
 Proof.
   intros.
   generalize dependent c.
-  generalize dependent k.
+  generalize dependent s.
   induction H;intros.
 
 (** Calculation of the compiler for expressions *)
 
-(** - [Put e ↓[s] v]: *)
+(** - [Put e ↓[q] v]: *)
 
   begin
-    ⟨c, k, v⟩.
+    ⟨c, s, v⟩.
   <== {apply vm_put}
-    ⟨PUT c, VAL v :: k, s⟩.
+    ⟨PUT c, VAL v :: s, q⟩.
   <<= {apply specExpr}
-    ⟨compE e (PUT c), k, s⟩.
+    ⟨compE e (PUT c), s, q⟩.
   [].
 
-(** - [Seqn e1 e2 ↓[s1] s3]: *)
+(** - [Seqn e1 e2 ↓[q1] q3]: *)
   
   begin
-    ⟨c, k, s3⟩.
+    ⟨c, s, q3⟩.
   <<= {apply IHrun2}
-    ⟨compS e2 c, k, s2⟩.
+    ⟨compS e2 c, s, q2⟩.
   <<= {apply IHrun1}
-    ⟨compS e1 (compS e2 c), k, s1⟩.
+    ⟨compS e1 (compS e2 c), s, q1⟩.
   [].
 
-(** - [While e1 e2 ↓[s] s] ([run_while_exit]): *)
+(** - [While e1 e2 ↓[q] q] ([run_while_exit]): *)
 
   begin
-    ⟨c, k, s⟩.
+    ⟨c, s, q⟩.
   <== {apply vm_jmp_no}
-    ⟨JMP c (compS e2 LOOP), VAL 0 :: CON (compS (While e1 e2) c) :: k, s⟩.
+    ⟨JMP c (compS e2 LOOP), VAL 0 :: CON (compS (While e1 e2) c) :: s, q⟩.
   <<= {apply specExpr}
-    ⟨compE e1 (JMP c (compS e2 LOOP)), CON (compS (While e1 e2) c) :: k, s ⟩.
+    ⟨compE e1 (JMP c (compS e2 LOOP)), CON (compS (While e1 e2) c) :: s, q ⟩.
   <== {apply vm_enter}
-    ⟨ENTER (compE e1 (JMP c (compS e2 LOOP))), k, s ⟩.
+    ⟨ENTER (compE e1 (JMP c (compS e2 LOOP))), s, q ⟩.
   [].
 
-(** - [While e1 e2 ↓[s1] s3] ([run_while_cont]): *)
+(** - [While e1 e2 ↓[q1] q3] ([run_while_cont]): *)
 
   begin
-    ⟨c, k, s3⟩.
+    ⟨c, s, q3⟩.
   <<= {apply IHrun2}
-    ⟨compS (While e1 e2) c, k, s2 ⟩.
+    ⟨compS (While e1 e2) c, s, q2 ⟩.
   <== {apply vm_loop}
-    ⟨LOOP, CON (compS (While e1 e2) c) :: k, s2 ⟩.
+    ⟨LOOP, CON (compS (While e1 e2) c) :: s, q2 ⟩.
   <<= {apply IHrun1}
-    ⟨compS e2 LOOP, CON (compS (While e1 e2) c) :: k, s1 ⟩.
+    ⟨compS e2 LOOP, CON (compS (While e1 e2) c) :: s, q1 ⟩.
   <== {apply vm_jmp_yes}
-    ⟨JMP c (compS e2 LOOP), VAL v :: CON (compS (While e1 e2) c) :: k, s1 ⟩.
+    ⟨JMP c (compS e2 LOOP), VAL v :: CON (compS (While e1 e2) c) :: s, q1 ⟩.
   <<= {apply specExpr}
-    ⟨compE e1 (JMP c (compS e2 LOOP)), CON (compS (While e1 e2) c) :: k, s1 ⟩.
+    ⟨compE e1 (JMP c (compS e2 LOOP)), CON (compS (While e1 e2) c) :: s, q1 ⟩.
   <== {apply vm_enter}
-    ⟨ENTER (compE e1 (JMP c (compS e2 LOOP))), k, s1 ⟩.
+    ⟨ENTER (compE e1 (JMP c (compS e2 LOOP))), s, q1 ⟩.
   [].
 
 Qed.
@@ -221,14 +221,14 @@ Lemma determ_vm : determ VM.
 Qed.
   
 
-Definition terminates (e : Stmt) : Prop := exists s, e ↓[0] s.
+Definition terminates (e : Stmt) : Prop := exists q, e ↓[0] q.
 
 Theorem sound e C : terminates e -> ⟨comp e, nil, 0⟩ =>>! C -> 
-                          exists s, C = ⟨HALT, nil, s⟩ /\ e ↓[0] s.
+                          exists q, C = ⟨HALT, nil, q⟩ /\ e ↓[0] q.
 Proof.
-  unfold terminates. intros. destruct H as [s T].
+  unfold terminates. intros. destruct H as [q T].
   
-  pose (specStmt e 0 s nil HALT) as H'. exists s. split. pose (determ_trc determ_vm) as D.
+  pose (specStmt e 0 q nil HALT) as H'. exists q. split. pose (determ_trc determ_vm) as D.
   unfold determ in D. eapply D. eassumption. split. auto. intro. destruct H. 
   inversion H. assumption.
 Qed.
