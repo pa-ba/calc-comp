@@ -8,6 +8,9 @@ formalisations of all calculations in the paper. In addition, we also
 include Coq formalisations for calculations that were mentioned but
 not explicitly carried out in the paper.
 
+Paper vs. Coq Proofs
+--------------------
+
 The Coq proofs proceed as the calculations in the paper. There are,
 however, two minor technical difference due to the nature of the Coq
 system.
@@ -39,6 +42,9 @@ system.
      definition of the Code data type, the VM, and the compiler as
      described in the paper.
 
+File Structure
+--------------
+
 Below we list the relevant Coq files for the calculations in the
 paper:
 
@@ -63,5 +69,19 @@ recommend using the
 [generated documentation](http://pa-ba.github.io/calc-comp/doc/toc.html)
 to browse the Coq files.
 
-The formalisations were developed using version 8.4pl4 of the Coq
-system.
+Technical Details
+-----------------
+
+### Dependencies
+
+- To check the proofs: Coq 8.4pl5
+- To step through the proofs: GNU Emacs 24.3.1, Proof General 4.2
+
+### Proof Checking
+
+To check and compile the complete Coq development, you can use the
+`Makefile`:
+
+```shell
+> make
+```
