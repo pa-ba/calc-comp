@@ -1,6 +1,8 @@
 Calculating Correct Compilers
 =============================
 
+[![Build Status](https://travis-ci.org/pa-ba/calc-comp.svg?branch=master)](https://travis-ci.org/pa-ba/calc-comp)
+
 This repository contains the supplementary material for the paper
 ["Calculating Correct Compilers"](http://www.diku.dk/~paba/pubs/files/bahr14jfp-preprint.pdf)
 by Patrick Bahr and Graham Hutton.  The material includes Coq
