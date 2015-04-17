@@ -54,9 +54,7 @@ Ltac dist t := idtac; subst; simpl; try solve [t;try rewr_assumption;auto|apply 
                         | [ H : ex _ |- _ ] => destruct H; dist t
                         | [ H : or _ _ |- _ ] => destruct H; dist t
                         | [ |- context [let _ := ?x in _] ] => smart_destruct x;dist t
-                        | [ |- context [match ?x with 
-                                          | _ => _ 
-                                        end]] => smart_destruct x; dist t
+                        | [ |- context [match ?x with _ => _ end]] => smart_destruct x; dist t
                       end.
 
 Ltac dist_refl := dist reflexivity.
