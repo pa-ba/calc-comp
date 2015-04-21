@@ -1,4 +1,4 @@
-language: coq
+language: haskell
 
 cache: apt
 before_install:
@@ -7,3 +7,5 @@ before_install:
     - sudo apt-get install coq-8.4
 script:
     - make
+    - cd Haskell
+    - make test
