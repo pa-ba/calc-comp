@@ -75,6 +75,14 @@ recommend using the
 [generated documentation](http://pa-ba.github.io/calc-comp/doc/toc.html)
 to browse the Coq files.
 
+Haskell Code
+------------
+
+Haskell definitions of the calculated compilers can be found in the
+[Haskell](Haskell) sub-directory. These definitions have been
+generated from the Coq proofs using Coq's code extraction facility
+(see below).
+
 Technical Details
 -----------------
 
@@ -89,5 +97,17 @@ To check and compile the complete Coq development, you can use the
 `Makefile`:
 
 ```shell
+> make
+```
+
+### Code Extraction
+
+The Haskell definitions in the sub-directory [Haskell](Haskell) have
+be obtained by code extraction. The code extraction can be repeated as
+follows:
+
+```shell
+> make
+> cd Haskell
 > make
 ```
