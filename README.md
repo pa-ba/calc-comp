@@ -62,6 +62,10 @@ In addition we also include calculations for the following languages:
 
  - [LambdaCBName.v](LambdaCBName.v): call-by-name lambda calculus
  - [LambdaCBNeed.v](LambdaCBNeed.v): call-by-need lambda calculus
+ - [LambdaExceptions.v](LambdaExceptions.v): call-by-value lambda
+   calculus with exceptions
+ - [StateGlobalSeq.v](StateGlobalSeq.v): global state with explicit
+   sequence operator
  - [Loop.v](Loop.v): a simple imperative language with while loops
 
 The remaining files are used to define the Coq tactics to support
