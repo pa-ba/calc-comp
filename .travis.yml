@@ -8,3 +8,5 @@ script:
     - cd extraction
     - make clean
     - make test
+    - cd ../Haskell
+    - ghc -fno-code *.hs
