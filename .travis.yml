@@ -1,10 +1,8 @@
-language: haskell
-
-cache: apt
 before_install:
-    - sudo add-apt-repository ppa:glondu/ppa -y
-    - sudo apt-get update
-    - sudo apt-get install coq-8.4
+    - travis_retry sudo add-apt-repository -y ppa:hvr/ghc
+    - travis_retry sudo add-apt-repository -y ppa:glondu/ppa
+    - travis_retry sudo apt-get update
+    - travis_retry sudo apt-get install coq-8.4 ghc
 script:
     - make
     - cd Haskell
