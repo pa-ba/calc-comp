@@ -1,39 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-us">
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
-
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
+    <meta charset="UTF-8">
     <title>Calculating Correct Compilers by pa-ba</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
-
   <body>
-    <header>
-      <div class="inner">
-        <h1>Calculating Correct Compilers</h1>
-        <h2>Coq proofs for the paper &quot;Calculating Correct Compilers&quot;</h2>
-        <a href="https://github.com/pa-ba/calc-comp" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
+    <section class="page-header">
+      <h1 class="project-name">Calculating Correct Compilers</h1>
+      <h2 class="project-tagline">Coq proofs for the paper &quot;Calculating Correct Compilers&quot;</h2>
+      <a href="https://github.com/pa-ba/calc-comp" class="btn">View on GitHub</a>
+      <a href="https://github.com/pa-ba/calc-comp/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/pa-ba/calc-comp/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <p>This repository contains the supplementary material for the paper
+    <section class="main-content">
+      <h1>
+<a id="calculating-correct-compilers" class="anchor" href="#calculating-correct-compilers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Calculating Correct Compilers</h1>
+
+<p><a href="https://travis-ci.org/pa-ba/calc-comp"><img src="https://travis-ci.org/pa-ba/calc-comp.svg?branch=master" alt="Build Status"></a></p>
+
+<p>This repository contains the supplementary material for the paper
 <a href="http://www.diku.dk/%7Epaba/pubs/files/bahr14jfp-preprint.pdf">"Calculating Correct Compilers"</a>
 by Patrick Bahr and Graham Hutton.  The material includes Coq
 formalisations of all calculations in the paper. In addition, we also
 include Coq formalisations for calculations that were mentioned but
 not explicitly carried out in the paper.</p>
+
+<h2>
+<a id="paper-vs-coq-proofs" class="anchor" href="#paper-vs-coq-proofs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Paper vs. Coq Proofs</h2>
 
 <p>The Coq proofs proceed as the calculations in the paper. There are,
 however, two minor technical difference due to the nature of the Coq
@@ -65,57 +64,102 @@ system.</p>
  "undefined"). This setup then allows us to calculate the
  definition of the Code data type, the VM, and the compiler as
  described in the paper.</p></li>
-</ol><p>Below we list the relevant Coq files for the calculations in the
+</ol>
+
+<h2>
+<a id="file-structure" class="anchor" href="#file-structure" aria-hidden="true"><span class="octicon octicon-link"></span></a>File Structure</h2>
+
+<p>Below we list the relevant Coq files for the calculations in the
 paper:</p>
 
 <ul>
 <li>
-<a href="doc/Arith.html">Arith.v</a>: arithmetic expressions (section 2)</li>
+<a href="Arith.v">Arith.v</a>: arithmetic expressions (section 2)</li>
 <li>
-<a href="doc/Exceptions.html">Exceptions.v</a>: exceptions, first approach (section 3.1)</li>
+<a href="Exceptions.v">Exceptions.v</a>: exceptions, first approach (section 3.1)</li>
 <li>
-<a href="doc/ExceptionsTwoCont.html">ExceptionsTwoCont.v</a>: exceptions, second
+<a href="ExceptionsTwoCont.v">ExceptionsTwoCont.v</a>: exceptions, second
 approach (section 3.2)</li>
 <li>
-<a href="doc/StateGlobal.html">StateGlobal.v</a>: global state (section 4.1)</li>
+<a href="StateGlobal.v">StateGlobal.v</a>: global state (section 4.1)</li>
 <li>
-<a href="doc/StateLocal.html">StateLocal.v</a>: local state (section 4.2)</li>
+<a href="StateLocal.v">StateLocal.v</a>: local state (section 4.2)</li>
 <li>
-<a href="doc/Lambda.html">Lambda.v</a>: call-by-value lambda calculus (section 5)</li>
-</ul><p>In addition we also include calculations for the following languages:</p>
+<a href="Lambda.v">Lambda.v</a>: call-by-value lambda calculus (section 5)</li>
+</ul>
+
+<p>In addition we also include calculations for the following languages:</p>
 
 <ul>
 <li>
-<a href="doc/LambdaCBName.html">LambdaCBName.v</a>: call-by-name lambda calculus</li>
+<a href="LambdaCBName.v">LambdaCBName.v</a>: call-by-name lambda calculus</li>
 <li>
-<a href="doc/LambdaCBNeed.html">LambdaCBNeed.v</a>: call-by-need lambda calculus</li>
+<a href="LambdaCBNeed.v">LambdaCBNeed.v</a>: call-by-need lambda calculus</li>
 <li>
-<a href="doc/Loop.html">Loop.v</a>: a simple imperative language with while loops</li>
-</ul><p>The remaining files are used to define the Coq tactics to support
-reasoning in calculation style (<a href="doc/Tactics.html">Tactics.v</a>) and to specify
-auxiliary concepts (<a href="doc/Heap.html">Heap.v</a>, <a href="doc/ListIndex.html">ListIndex.v</a>).</p>
+<a href="LambdaExceptions.v">LambdaExceptions.v</a>: call-by-value lambda
+calculus with exceptions</li>
+<li>
+<a href="StateGlobalSeq.v">StateGlobalSeq.v</a>: global state with explicit
+sequence operator</li>
+<li>
+<a href="Loop.v">Loop.v</a>: a simple imperative language with while loops</li>
+</ul>
 
-<p>The formalisations were developed using version 8.4pl4 of the Coq
-system.</p>
-        </section>
+<p>The remaining files are used to define the Coq tactics to support
+reasoning in calculation style (<a href="Tactics.v">Tactics.v</a>) and to specify
+auxiliary concepts (<a href="Heap.v">Heap.v</a>, <a href="ListIndex.v">ListIndex.v</a>). We
+recommend using the
+<a href="http://pa-ba.github.io/calc-comp/doc/toc.html">generated documentation</a>
+to browse the Coq files.</p>
 
-        <aside id="sidebar">
-          <a href="https://github.com/pa-ba/calc-comp/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/pa-ba/calc-comp/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
+<h2>
+<a id="haskell-code" class="anchor" href="#haskell-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Haskell Code</h2>
 
-          <p class="repo-owner"><a href="https://github.com/pa-ba/calc-comp"></a> is maintained by <a href="https://github.com/pa-ba">pa-ba</a>.</p>
+<p>Haskell definitions of the calculated compilers from the paper can be
+found in the <a href="Haskell">Haskell</a> sub-directory. In addtion, the
+<a href="extraction">extraction</a> sub-directory contains Haskell definitions of
+the compilers generated from the Coq proofs using Coq's code
+extraction facility (see below).</p>
 
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
-    </div>
+<h2>
+<a id="technical-details" class="anchor" href="#technical-details" aria-hidden="true"><span class="octicon octicon-link"></span></a>Technical Details</h2>
+
+<h3>
+<a id="dependencies" class="anchor" href="#dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dependencies</h3>
+
+<ul>
+<li>To check the proofs: Coq 8.4pl5</li>
+<li>To step through the proofs: GNU Emacs 24.3.1, Proof General 4.2</li>
+</ul>
+
+<h3>
+<a id="proof-checking" class="anchor" href="#proof-checking" aria-hidden="true"><span class="octicon octicon-link"></span></a>Proof Checking</h3>
+
+<p>To check and compile the complete Coq development, you can use the
+<code>Makefile</code>:</p>
+
+<div class="highlight highlight-shell"><pre><span class="pl-k">&gt;</span> make</pre></div>
+
+<h3>
+<a id="code-extraction" class="anchor" href="#code-extraction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code Extraction</h3>
+
+<p>The Haskell definitions in the sub-directory <a href="extraction">extraction</a>
+have be obtained by code extraction. The code extraction can be
+repeated as follows:</p>
+
+<div class="highlight highlight-shell"><pre><span class="pl-k">&gt;</span> make
+<span class="pl-k">&gt;</span> <span class="pl-c1">cd</span> extraction
+<span class="pl-k">&gt;</span> make</pre></div>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/pa-ba/calc-comp">Calculating Correct Compilers</a> is maintained by <a href="https://github.com/pa-ba">pa-ba</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
 
   
   </body>
 </html>
+
