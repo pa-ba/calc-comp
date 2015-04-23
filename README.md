@@ -32,11 +32,11 @@ system.
      closure of the relation ==> that defines the VM.
 
   2. The Coq files contain the final result of the calculation, and
-     thus do not reflect the /process/ of discovering the definition
+     thus do not reflect the *process* of discovering the definition
      of the compiler and the VM. That is, the files already contain
      the full definitions of the compiler and the virtual machine. But
      we used the same methodology as described in the paper to
-     /develop/ the Coq proofs. This is achieved by initially defining
+     *develop* the Coq proofs. This is achieved by initially defining
      the Code data type as an empty type, defining the VM relation as
      an empty relation (i.e. with no rules), and defining the compiler
      function using the term "Admit" (which corresponds to Haskell's
