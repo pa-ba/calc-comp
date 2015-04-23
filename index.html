@@ -53,11 +53,11 @@ system.</p>
  instances of the relation =&gt;&gt;, which is the transitive, reflexive
  closure of the relation ==&gt; that defines the VM.</p></li>
 <li><p>The Coq files contain the final result of the calculation, and
- thus do not reflect the /process/ of discovering the definition
+ thus do not reflect the <em>process</em> of discovering the definition
  of the compiler and the VM. That is, the files already contain
  the full definitions of the compiler and the virtual machine. But
  we used the same methodology as described in the paper to
- /develop/ the Coq proofs. This is achieved by initially defining
+ <em>develop</em> the Coq proofs. This is achieved by initially defining
  the Code data type as an empty type, defining the VM relation as
  an empty relation (i.e. with no rules), and defining the compiler
  function using the term "Admit" (which corresponds to Haskell's
@@ -74,40 +74,40 @@ paper:</p>
 
 <ul>
 <li>
-<a href="Arith.v">Arith.v</a>: arithmetic expressions (section 2)</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/Arith.v">Arith.v</a>: arithmetic expressions (section 2)</li>
 <li>
-<a href="Exceptions.v">Exceptions.v</a>: exceptions, first approach (section 3.1)</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/Exceptions.v">Exceptions.v</a>: exceptions, first approach (section 3.1)</li>
 <li>
-<a href="ExceptionsTwoCont.v">ExceptionsTwoCont.v</a>: exceptions, second
+<a href="https://github.com/pa-ba/calc-comp/blob/master/ExceptionsTwoCont.v">ExceptionsTwoCont.v</a>: exceptions, second
 approach (section 3.2)</li>
 <li>
-<a href="StateGlobal.v">StateGlobal.v</a>: global state (section 4.1)</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/StateGlobal.v">StateGlobal.v</a>: global state (section 4.1)</li>
 <li>
-<a href="StateLocal.v">StateLocal.v</a>: local state (section 4.2)</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/StateLocal.v">StateLocal.v</a>: local state (section 4.2)</li>
 <li>
-<a href="Lambda.v">Lambda.v</a>: call-by-value lambda calculus (section 5)</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/Lambda.v">Lambda.v</a>: call-by-value lambda calculus (section 5)</li>
 </ul>
 
 <p>In addition we also include calculations for the following languages:</p>
 
 <ul>
 <li>
-<a href="LambdaCBName.v">LambdaCBName.v</a>: call-by-name lambda calculus</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/LambdaCBName.v">LambdaCBName.v</a>: call-by-name lambda calculus</li>
 <li>
-<a href="LambdaCBNeed.v">LambdaCBNeed.v</a>: call-by-need lambda calculus</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/LambdaCBNeed.v">LambdaCBNeed.v</a>: call-by-need lambda calculus</li>
 <li>
-<a href="LambdaExceptions.v">LambdaExceptions.v</a>: call-by-value lambda
+<a href="https://github.com/pa-ba/calc-comp/blob/master/LambdaExceptions.v">LambdaExceptions.v</a>: call-by-value lambda
 calculus with exceptions</li>
 <li>
-<a href="StateGlobalSeq.v">StateGlobalSeq.v</a>: global state with explicit
+<a href="https://github.com/pa-ba/calc-comp/blob/master/StateGlobalSeq.v">StateGlobalSeq.v</a>: global state with explicit
 sequence operator</li>
 <li>
-<a href="Loop.v">Loop.v</a>: a simple imperative language with while loops</li>
+<a href="https://github.com/pa-ba/calc-comp/blob/master/Loop.v">Loop.v</a>: a simple imperative language with while loops</li>
 </ul>
 
 <p>The remaining files are used to define the Coq tactics to support
-reasoning in calculation style (<a href="Tactics.v">Tactics.v</a>) and to specify
-auxiliary concepts (<a href="Heap.v">Heap.v</a>, <a href="ListIndex.v">ListIndex.v</a>). We
+reasoning in calculation style (<a href="https://github.com/pa-ba/calc-comp/blob/master/Tactics.v">Tactics.v</a>) and to specify
+auxiliary concepts (<a href="https://github.com/pa-ba/calc-comp/blob/master/Heap.v">Heap.v</a>, <a href="https://github.com/pa-ba/calc-comp/blob/master/ListIndex.v">ListIndex.v</a>). We
 recommend using the
 <a href="http://pa-ba.github.io/calc-comp/doc/toc.html">generated documentation</a>
 to browse the Coq files.</p>
@@ -116,8 +116,8 @@ to browse the Coq files.</p>
 <a id="haskell-code" class="anchor" href="#haskell-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Haskell Code</h2>
 
 <p>Haskell definitions of the calculated compilers from the paper can be
-found in the <a href="Haskell">Haskell</a> sub-directory. In addtion, the
-<a href="extraction">extraction</a> sub-directory contains Haskell definitions of
+found in the <a href="https://github.com/pa-ba/calc-comp/blob/master/Haskell">Haskell</a> sub-directory. In addtion, the
+<a href="https://github.com/pa-ba/calc-comp/blob/master/extraction">extraction</a> sub-directory contains Haskell definitions of
 the compilers generated from the Coq proofs using Coq's code
 extraction facility (see below).</p>
 
@@ -143,7 +143,7 @@ extraction facility (see below).</p>
 <h3>
 <a id="code-extraction" class="anchor" href="#code-extraction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code Extraction</h3>
 
-<p>The Haskell definitions in the sub-directory <a href="extraction">extraction</a>
+<p>The Haskell definitions in the sub-directory <a href="https://github.com/pa-ba/calc-comp/blob/master/extraction">extraction</a>
 have be obtained by code extraction. The code extraction can be
 repeated as follows:</p>
 
