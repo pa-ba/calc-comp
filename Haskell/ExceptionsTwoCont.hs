@@ -36,5 +36,5 @@ data Elem  =   VAL Int | HAN Code
 exec                             :: Code -> Stack -> Stack
 exec HALT s                      =  s
 exec (PUSH n c) s                =  exec c (VAL n : s)
-exec (ADD c) (VAL n : VAL m : s) =  exec c (VAL (m + n) : s)
+exec (ADD c) (VAL m : VAL n : s) =  exec c (VAL (n + m) : s)
 exec (POP c) (VAL _ : s)         =  exec c s
