@@ -113,22 +113,6 @@ Tactic Notation  (at level 2)  "begin" constr(rhs) :=  match goal with
       | _ => fail 1 "rhs does not match"
     end.
 
-
-Inductive barred (P : Conf -> Prop) : Conf -> Prop :=
-| barred_here c : P c -> barred P c
-| barred_next c : (forall c', c ==> c' -> barred P c') -> barred P c.
-
-Lemma barred_if c (P Q : Conf -> Prop) : (forall c, P c -> Q c) -> barred P c -> barred Q c.
-Proof.
-  intros. induction H0. apply barred_here. auto.
-  apply barred_next. assumption.
-Qed.
-
-Lemma barred_step (P : Conf -> Prop) c :(forall c', c ==> c' -> P c') -> barred P c.
-Proof.
-  intros. apply barred_next. intros. apply barred_here. auto.
-Qed.
-
 Definition determ {A} (R : A -> A -> Prop) : Prop := forall C C1 C2, R C C1 -> R C C2 -> C1 = C2.
 
 
