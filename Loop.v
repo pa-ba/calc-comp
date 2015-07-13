@@ -31,11 +31,11 @@ where "x ⇓[ q ] y" := (eval x q y).
 Reserved Notation "x ↓[ q ] q'" (at level 80, no associativity).
 
 Inductive run : Stmt -> State -> State -> Prop :=
-| run_put e q v : e ⇓[q] v -> Put e ↓[q] v
-| run_seqn e1 e2 q1 q2 q3 : e1 ↓[q1] q2 -> e2 ↓[q2] q3 -> Seqn e1 e2 ↓[q1] q3
-| run_while_exit e1 e2 q : e1 ⇓[q] 0 -> While e1 e2 ↓[q] q
-| run_while_cont v e1 e2 q1 q2 q3 : e1 ⇓[q1] v -> v > 0 -> e2 ↓[q1] q2 -> While e1 e2 ↓[q2] q3 
-                   -> While e1 e2 ↓[q1] q3
+| run_put x q v : x ⇓[q] v -> Put x ↓[q] v
+| run_seqn x1 x2 q1 q2 q3 : x1 ↓[q1] q2 -> x2 ↓[q2] q3 -> Seqn x1 x2 ↓[q1] q3
+| run_while_exit x1 x2 q : x1 ⇓[q] 0 -> While x1 x2 ↓[q] q
+| run_while_cont v x1 x2 q1 q2 q3 : x1 ⇓[q1] v -> v > 0 -> x2 ↓[q1] q2 -> While x1 x2 ↓[q2] q3 
+                   -> While x1 x2 ↓[q1] q3
 where "x ↓[ q ] y" := (run x q y).
 
 (** * Compiler *)
@@ -50,21 +50,21 @@ Inductive Code : Set :=
 | ENTER : Code -> Code
 | HALT : Code.
 
-Fixpoint compE (e : Expr) (c : Code) : Code :=
-  match e with
+Fixpoint compE (x : Expr) (c : Code) : Code :=
+  match x with
     | Val n => PUSH n c
-    | Add x y => compE x (compE y (ADD c))
+    | Add x1 x2 => compE x1 (compE x2 (ADD c))
     | Get => GET c
   end.
 
-Fixpoint compS (e : Stmt) (c : Code) : Code :=
-  match e with
-    | Put e => compE e (PUT c)
-    | Seqn e1 e2 => compS e1 (compS e2 c)
-    | While e1 e2 => ENTER (compE e1 (JMP c (compS e2 LOOP)))
+Fixpoint compS (x : Stmt) (c : Code) : Code :=
+  match x with
+    | Put x => compE x (PUT c)
+    | Seqn x1 x2 => compS x1 (compS x2 c)
+    | While x1 x2 => ENTER (compE x1 (JMP c (compS x2 LOOP)))
   end.
 
-Definition comp (e : Stmt) : Code := compS e HALT.
+Definition comp (x : Stmt) : Code := compS x HALT.
 
 (** * Virtual Machine *)
 
@@ -105,7 +105,7 @@ Module VMCalc := Calculation VM.
 Import VMCalc.
 
 (** Specification of the compiler for expressions *)
-Theorem specExpr e q v s c : e ⇓[q] v -> ⟨compE e c, s, q⟩ 
+Theorem specExpr x q v s c : x ⇓[q] v -> ⟨compE x c, s, q⟩ 
                                  =>> ⟨c , VAL v :: s, q⟩.
 
 (** Setup the induction proof *)
@@ -148,7 +148,7 @@ Proof.
 Qed.
   
 (** Specification of the compiler for statements *)
-Theorem specStmt e q q' s c : e ↓[q] q' -> ⟨compS e c, s, q⟩ 
+Theorem specStmt x q q' s c : x ↓[q] q' -> ⟨compS x c, s, q⟩ 
                                  =>> ⟨c , s, q'⟩.
 
 (** Setup the induction proof *)
@@ -161,54 +161,54 @@ Proof.
 
 (** Calculation of the compiler for expressions *)
 
-(** - [Put e ↓[q] v]: *)
+(** - [Put x ↓[q] v]: *)
 
   begin
     ⟨c, s, v⟩.
   <== {apply vm_put}
     ⟨PUT c, VAL v :: s, q⟩.
   <<= {apply specExpr}
-    ⟨compE e (PUT c), s, q⟩.
+    ⟨compE x (PUT c), s, q⟩.
   [].
 
-(** - [Seqn e1 e2 ↓[q1] q3]: *)
+(** - [Seqn x1 x2 ↓[q1] q3]: *)
   
   begin
     ⟨c, s, q3⟩.
   <<= {apply IHrun2}
-    ⟨compS e2 c, s, q2⟩.
+    ⟨compS x2 c, s, q2⟩.
   <<= {apply IHrun1}
-    ⟨compS e1 (compS e2 c), s, q1⟩.
+    ⟨compS x1 (compS x2 c), s, q1⟩.
   [].
 
-(** - [While e1 e2 ↓[q] q] ([run_while_exit]): *)
+(** - [While x1 x2 ↓[q] q] ([run_while_exit]): *)
 
   begin
     ⟨c, s, q⟩.
   <== {apply vm_jmp_no}
-    ⟨JMP c (compS e2 LOOP), VAL 0 :: CON (compS (While e1 e2) c) :: s, q⟩.
+    ⟨JMP c (compS x2 LOOP), VAL 0 :: CON (compS (While x1 x2) c) :: s, q⟩.
   <<= {apply specExpr}
-    ⟨compE e1 (JMP c (compS e2 LOOP)), CON (compS (While e1 e2) c) :: s, q ⟩.
+    ⟨compE x1 (JMP c (compS x2 LOOP)), CON (compS (While x1 x2) c) :: s, q ⟩.
   <== {apply vm_enter}
-    ⟨ENTER (compE e1 (JMP c (compS e2 LOOP))), s, q ⟩.
+    ⟨ENTER (compE x1 (JMP c (compS x2 LOOP))), s, q ⟩.
   [].
 
-(** - [While e1 e2 ↓[q1] q3] ([run_while_cont]): *)
+(** - [While x1 x2 ↓[q1] q3] ([run_while_cont]): *)
 
   begin
     ⟨c, s, q3⟩.
   <<= {apply IHrun2}
-    ⟨compS (While e1 e2) c, s, q2 ⟩.
+    ⟨compS (While x1 x2) c, s, q2 ⟩.
   <== {apply vm_loop}
-    ⟨LOOP, CON (compS (While e1 e2) c) :: s, q2 ⟩.
+    ⟨LOOP, CON (compS (While x1 x2) c) :: s, q2 ⟩.
   <<= {apply IHrun1}
-    ⟨compS e2 LOOP, CON (compS (While e1 e2) c) :: s, q1 ⟩.
+    ⟨compS x2 LOOP, CON (compS (While x1 x2) c) :: s, q1 ⟩.
   <== {apply vm_jmp_yes}
-    ⟨JMP c (compS e2 LOOP), VAL v :: CON (compS (While e1 e2) c) :: s, q1 ⟩.
+    ⟨JMP c (compS x2 LOOP), VAL v :: CON (compS (While x1 x2) c) :: s, q1 ⟩.
   <<= {apply specExpr}
-    ⟨compE e1 (JMP c (compS e2 LOOP)), CON (compS (While e1 e2) c) :: s, q1 ⟩.
+    ⟨compE x1 (JMP c (compS x2 LOOP)), CON (compS (While x1 x2) c) :: s, q1 ⟩.
   <== {apply vm_enter}
-    ⟨ENTER (compE e1 (JMP c (compS e2 LOOP))), s, q1 ⟩.
+    ⟨ENTER (compE x1 (JMP c (compS x2 LOOP))), s, q1 ⟩.
   [].
 
 Qed.
@@ -221,14 +221,14 @@ Lemma determ_vm : determ VM.
 Qed.
   
 
-Definition terminates (e : Stmt) : Prop := exists q, e ↓[0] q.
+Definition terminates (x : Stmt) : Prop := exists q, x ↓[0] q.
 
-Theorem sound e C : terminates e -> ⟨comp e, nil, 0⟩ =>>! C -> 
-                          exists q, C = ⟨HALT, nil, q⟩ /\ e ↓[0] q.
+Theorem sound x C : terminates x -> ⟨comp x, nil, 0⟩ =>>! C -> 
+                          exists q, C = ⟨HALT, nil, q⟩ /\ x ↓[0] q.
 Proof.
   unfold terminates. intros. destruct H as [q T].
   
-  pose (specStmt e 0 q nil HALT) as H'. exists q. split. pose (determ_trc determ_vm) as D.
+  pose (specStmt x 0 q nil HALT) as H'. exists q. split. pose (determ_trc determ_vm) as D.
   unfold determ in D. eapply D. eassumption. split. auto. intro. destruct H. 
   inversion H. assumption.
 Qed.

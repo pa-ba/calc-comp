@@ -11,10 +11,10 @@ Inductive Expr : Set :=
 
 (** * Semantics *)
 
-Fixpoint eval (e: Expr) : nat :=
-  match e with
+Fixpoint eval (x: Expr) : nat :=
+  match x with
     | Val n => n
-    | Add x y => eval x + eval y
+    | Add x1 x2 => eval x1 + eval x2
   end.
 
 (** * Compiler *)
@@ -24,13 +24,13 @@ Inductive Code : Set :=
 | ADD : Code -> Code
 | HALT : Code.
 
-Fixpoint comp' (e : Expr) (c : Code) : Code :=
-  match e with
+Fixpoint comp' (x : Expr) (c : Code) : Code :=
+  match x with
     | Val n => PUSH n c
-    | Add x y => comp' x (comp' y (ADD c))
+    | Add x1 x2 => comp' x1 (comp' x2 (ADD c))
   end.
 
-Definition comp (e : Expr) : Code := comp' e HALT.
+Definition comp (x : Expr) : Code := comp' x HALT.
 
 (** * Virtual Machine *)
 
@@ -57,7 +57,7 @@ Import VMCalc.
 
 (** Specification of the compiler *)
 
-Theorem spec e c s : (comp' e c, s) =>> (c , eval e :: s).
+Theorem spec x c s : (comp' x c, s) =>> (c , eval x :: s).
 
 (** Setup the induction proof *)
 
@@ -65,11 +65,11 @@ Proof.
   intros.
   generalize dependent c.
   generalize dependent s.
-  induction e;intros.
+  induction x;intros.
 
 (** Calculation of the compiler *)
 
-(** - [e = Val n]: *)
+(** - [x = Val n]: *)
 
   begin
   (c, n :: s).
@@ -77,16 +77,16 @@ Proof.
   (PUSH n c, s).
   [].
 
-(** - [e = Add e1 e2]: *)
+(** - [x = Add x1 x2]: *)
 
   begin
-  (c, eval e1 + eval e2 :: s).
+  (c, eval x1 + eval x2 :: s).
   <== { apply vm_add}
-  (ADD c, eval e2 :: eval e1 :: s).
-  <<= { apply IHe2}
-  (comp' e2 (ADD c), eval e1 :: s).
-  <<= { apply IHe1}
-  (comp' e1 (comp' e2 (ADD c)), s).
+  (ADD c, eval x2 :: eval x1 :: s).
+  <<= { apply IHx2}
+  (comp' x2 (ADD c), eval x1 :: s).
+  <<= { apply IHx1}
+  (comp' x1 (comp' x2 (ADD c)), s).
   [].
 Qed.
 
@@ -103,10 +103,10 @@ Lemma determ_vm : determ VM.
 Qed.
 
 
-Theorem sound e s C : (comp e, s) =>>! C -> C = (HALT , eval e :: s).
+Theorem sound x s C : (comp x, s) =>>! C -> C = (HALT , eval x :: s).
 Proof.
   intros.
-  pose (spec e HALT) as H'. unfold comp in *. pose (determ_trc determ_vm) as D.
+  pose (spec x HALT) as H'. unfold comp in *. pose (determ_trc determ_vm) as D.
   unfold determ in D. eapply D. apply H. split. apply H'. intro Contra. destruct Contra.
   inversion H0.
 Qed.

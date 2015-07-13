@@ -13,21 +13,21 @@ Inductive Expr : Set :=
 
 (** * Semantics *)
 
-Fixpoint eval (e: Expr) : option nat :=
-  match e with
+Fixpoint eval (x: Expr) : option nat :=
+  match x with
     | Val n => Some n
-    | Add x y => match eval x with
-                   | Some n => match eval y with
+    | Add x1 x2 => match eval x1 with
+                   | Some n => match eval x2 with
                                  | Some m => Some (n + m)
                                  | None => None
                                end
                    | None => None
-                 end
-    | Throw => None
-    | Catch x y => match eval x with
-                     | Some n => Some n
-                     | None => eval y
                    end
+    | Throw => None
+    | Catch x1 x2 => match eval x1 with
+                     | Some n => Some n
+                     | None => eval x2
+                     end
   end.
 
 (** * Compiler *)
@@ -38,15 +38,15 @@ Inductive Code : Set :=
 | POP : Code -> Code
 | HALT : Code.
 
-Fixpoint comp' (e : Expr) (sc : Code) (fc : Code) : Code :=
-  match e with
+Fixpoint comp' (x : Expr) (sc : Code) (fc : Code) : Code :=
+  match x with
     | Val n =>  PUSH n sc
     | Add x y => comp' x (comp' y (ADD sc) (POP fc)) fc 
     | Throw => fc
-    | Catch x h => comp' x sc (comp' h sc fc)
+    | Catch x1 x2 => comp' x1 sc (comp' x2 sc fc)
   end.
 
-Definition comp (e : Expr) : Code := comp' e HALT HALT.
+Definition comp (x : Expr) : Code := comp' x HALT HALT.
 
 (** * Virtual Machine *)
 
@@ -82,8 +82,8 @@ Import VMCalc.
 
 (** Specification of the compiler *)
 
-Theorem spec e sc fc s : ⟨comp' e sc fc, s⟩
-                       =>> match eval e with
+Theorem spec x sc fc s : ⟨comp' x sc fc, s⟩
+                       =>> match eval x with
                             | Some n => ⟨sc , VAL n :: s⟩
                             | None => ⟨fc , s⟩
                            end.
@@ -95,11 +95,11 @@ Proof.
   generalize dependent sc.
   generalize dependent fc.
   generalize dependent s.
-  induction e;intros.
+  induction x;intros.
 
 (** Calculation of the compiler *)
 
-(** - [e = Val n]: *)
+(** - [x = Val n]: *)
 
   begin
   ⟨sc, VAL n :: s⟩.
@@ -107,64 +107,64 @@ Proof.
   ⟨PUSH n sc, s⟩.
   [].
 
-(** - [e = Add e1 e2]: *)
+(** - [x = Add x1 x2]: *)
   
   begin
-   (match eval e1 with
-     | Some m => match eval e2 with
+   (match eval x1 with
+     | Some m => match eval x2 with
                   | Some n => ⟨ sc, VAL (m + n) :: s ⟩
                   | None => ⟨ fc, s ⟩
                   end
      | None => ⟨ fc, s ⟩
      end).
   <<= { apply vm_add }
-   (match eval e1 with
-     | Some m => match eval e2 with
+   (match eval x1 with
+     | Some m => match eval x2 with
                   | Some n => ⟨ ADD sc, VAL n :: VAL m :: s ⟩
                   | None => ⟨ fc, s ⟩
                   end
      | None => ⟨ fc, s ⟩
      end).
   <<= { apply vm_pop }
-   (match eval e1 with
-     | Some m => match eval e2 with
+   (match eval x1 with
+     | Some m => match eval x2 with
                   | Some n => ⟨ ADD sc, VAL n :: VAL m :: s ⟩
                   | None => ⟨ POP fc, VAL m :: s ⟩
                   end
      | None => ⟨ fc, s ⟩
      end).
-  <<= { apply IHe2 }
-   (match eval e1 with
-     | Some m =>  ⟨ (comp' e2 (ADD sc) (POP fc)), VAL m :: s⟩
+  <<= { apply IHx2 }
+   (match eval x1 with
+     | Some m =>  ⟨ (comp' x2 (ADD sc) (POP fc)), VAL m :: s⟩
      | None => ⟨ fc, s ⟩
      end).
-  <<= { apply IHe1 }
-      ⟨ comp' e1 (comp' e2 (ADD sc) (POP fc)) fc, s ⟩.
+  <<= { apply IHx1 }
+      ⟨ comp' x1 (comp' x2 (ADD sc) (POP fc)) fc, s ⟩.
   [].
 
-(** - [e = Throw]: *)
+(** - [x = Throw]: *)
 
   begin
     ⟨ fc, s⟩.
   [].
 
-(** - [e = Catch e1 e2]: *)
+(** - [x = Catch x1 x2]: *)
 
   begin
-    (match eval e1 with
+    (match eval x1 with
          | Some m => ⟨ sc, VAL m :: s⟩
-         | None => match eval e2 with
+         | None => match eval x2 with
                      | Some n => ⟨sc, VAL n :: s⟩
                      | None => ⟨fc, s⟩
                    end
     end).
-   <<= { apply IHe2 }
-    (match eval e1 with
+   <<= { apply IHx2 }
+    (match eval x1 with
          | Some m => ⟨ sc, VAL m :: s⟩
-         | None => ⟨comp' e2 sc fc, s⟩
+         | None => ⟨comp' x2 sc fc, s⟩
     end).
-   <<= { apply IHe1 }
-       ⟨ comp' e1 sc (comp' e2 sc fc) , s⟩.
+   <<= { apply IHx1 }
+       ⟨ comp' x1 sc (comp' x2 sc fc) , s⟩.
    [].
 Qed.
 
@@ -189,12 +189,12 @@ Qed.
 
 
 
-Theorem sound e C : ⟨comp e, nil⟩ =>>! C -> C = match eval e with
+Theorem sound x C : ⟨comp x, nil⟩ =>>! C -> C = match eval x with
                                                   | Some n => ⟨HALT , VAL n :: nil⟩
                                                   | None =>  ⟨HALT , nil⟩
                                                 end.
 Proof.
   intros.
-  pose (spec e HALT HALT nil) as H'. unfold comp in *. pose (determ_trc determ_vm) as D.
+  pose (spec x HALT HALT nil) as H'. unfold comp in *. pose (determ_trc determ_vm) as D.
   unfold determ in D. eapply D. apply H. split. apply H'. apply term_vm.
 Qed.

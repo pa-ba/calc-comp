@@ -13,21 +13,21 @@ Inductive Expr : Set :=
 
 (** * Semantics *)
 
-Fixpoint eval (e: Expr) : option nat :=
-  match e with
+Fixpoint eval (x: Expr) : option nat :=
+  match x with
     | Val n => Some n
-    | Add x y => match eval x with
-                   | Some n => match eval y with
+    | Add x1 x2 => match eval x1 with
+                   | Some n => match eval x2 with
                                  | Some m => Some (n + m)
                                  | None => None
                                end
                    | None => None
-                 end
-    | Throw => None
-    | Catch x y => match eval x with
-                     | Some n => Some n
-                     | None => eval y
                    end
+    | Throw => None
+    | Catch x1 x2 => match eval x1 with
+                     | Some n => Some n
+                     | None => eval x2
+                     end
   end.
 
 (** * Compiler *)
@@ -40,15 +40,15 @@ Inductive Code : Set :=
 | MARK : Code -> Code -> Code
 | HALT : Code.
 
-Fixpoint comp' (e : Expr) (c : Code) : Code :=
-  match e with
+Fixpoint comp' (x : Expr) (c : Code) : Code :=
+  match x with
     | Val n => PUSH n c
-    | Add x y => comp' x (comp' y (ADD c))
+    | Add x1 x2 => comp' x1 (comp' x2 (ADD c))
     | Throw => FAIL
-    | Catch x h => MARK (comp' h c) (comp' x (UNMARK c))
+    | Catch x1 x2 => MARK (comp' x2 c) (comp' x1 (UNMARK c))
   end.
 
-Definition comp (e : Expr) : Code := comp' e HALT.
+Definition comp (x : Expr) : Code := comp' x HALT.
 
 (** * Virtual Machine *)
 
@@ -91,8 +91,8 @@ Import VMCalc.
 
 (** Specification of the compiler *)
 
-Theorem spec e c s : ⟨comp' e c, s⟩
-                       =>> match eval e with
+Theorem spec x c s : ⟨comp' x c, s⟩
+                       =>> match eval x with
                             | Some n => ⟨c , VAL n :: s⟩
                             | None => ⟪ s ⟫
                            end.
@@ -103,11 +103,11 @@ Proof.
   intros.
   generalize dependent c.
   generalize dependent s.
-  induction e;intros.
+  induction x;intros.
 
 (** Calculation of the compiler *)
 
-(** - [e = Val n]: *)
+(** - [x = Val n]: *)
 
   begin
   ⟨c, VAL n :: s⟩.
@@ -115,39 +115,39 @@ Proof.
   ⟨PUSH n c, s⟩.
   [].
 
-(** - [e = Add e1 e2]: *)
+(** - [x = Add x1 x2]: *)
 
   begin
-   (match eval e1 with
-     | Some m => match eval e2 with
+   (match eval x1 with
+     | Some m => match eval x2 with
                   | Some n => ⟨ c, VAL (m + n) :: s ⟩
                   | None => ⟪ s ⟫
                   end
      | None => ⟪ s ⟫
      end).
   <<= { apply vm_add }
-   (match eval e1 with
-     | Some m => match eval e2 with
+   (match eval x1 with
+     | Some m => match eval x2 with
                   | Some n => ⟨ ADD c, VAL n :: VAL m :: s ⟩
                   | None => ⟪ s ⟫
                   end
      | None => ⟪ s ⟫
      end).
   <<= { apply vm_fail_val }
-   (match eval e1 with
-     | Some m => match eval e2 with
+   (match eval x1 with
+     | Some m => match eval x2 with
                   | Some n => ⟨ ADD c, VAL n :: VAL m :: s ⟩
                   | None => ⟪ VAL m :: s ⟫
                   end
      | None => ⟪ s ⟫
      end).
-  <<= { apply IHe2 }
-   (match eval e1 with
-     | Some m =>  ⟨ comp' e2 (ADD c), VAL m :: s ⟩
+  <<= { apply IHx2 }
+   (match eval x1 with
+     | Some m =>  ⟨ comp' x2 (ADD c), VAL m :: s ⟩
      | None => ⟪ s ⟫
      end).
-  <<= { apply IHe1 }
-      ⟨ comp' e1 (comp' e2 (ADD c)), s ⟩.
+  <<= { apply IHx1 }
+      ⟨ comp' x1 (comp' x2 (ADD c)), s ⟩.
   [].
 
 (** - [e = Throw]: *)
@@ -158,35 +158,35 @@ Proof.
     ⟨ FAIL, s⟩.
   [].
 
-(** - [e = Catch e1 e2]: *)
+(** - [e = Catch x1 x2]: *)
 
   begin
-    (match eval e1 with
+    (match eval x1 with
          | Some m => ⟨ c, VAL m :: s⟩
-         | None => match eval e2 with
+         | None => match eval x2 with
                      | Some n => ⟨c, VAL n :: s⟩
                      | None => ⟪s⟫
                    end
     end).
-   <<= { apply IHe2 }
-    (match eval e1 with
+   <<= { apply IHx2 }
+    (match eval x1 with
          | Some m => ⟨ c, VAL m :: s⟩
-         | None => ⟨comp' e2 c, s⟩
+         | None => ⟨comp' x2 c, s⟩
     end).
    <<= { apply vm_fail_han }
-    (match eval e1 with
+    (match eval x1 with
          | Some m => ⟨ c, VAL m :: s⟩
-         | None => ⟪ HAN (comp' e2 c) :: s⟫
+         | None => ⟪ HAN (comp' x2 c) :: s⟫
     end).
    <<= { apply vm_unmark }
-    (match eval e1 with
-         | Some m => ⟨ UNMARK c, VAL m :: HAN (comp' e2 c) :: s⟩
-         | None => ⟪ HAN (comp' e2 c) :: s⟫
+    (match eval x1 with
+         | Some m => ⟨ UNMARK c, VAL m :: HAN (comp' x2 c) :: s⟩
+         | None => ⟪ HAN (comp' x2 c) :: s⟫
     end).
-   <<= { apply IHe1 }
-       ⟨ comp' e1 (UNMARK c), HAN (comp' e2 c) :: s⟩.
+   <<= { apply IHx1 }
+       ⟨ comp' x1 (UNMARK c), HAN (comp' x2 c) :: s⟩.
    <<= { apply vm_mark }
-       ⟨ MARK (comp' e2 c) (comp' e1 (UNMARK c)),  s⟩.
+       ⟨ MARK (comp' x2 c) (comp' x1 (UNMARK c)),  s⟩.
    [].
 
 Qed.
@@ -209,12 +209,12 @@ Proof.
   destruct x; intro Contra; destruct Contra; subst; inversion H.
 Qed.
 
-Theorem sound e C : ⟨comp e, nil⟩ =>>! C -> C = match eval e with
+Theorem sound x C : ⟨comp x, nil⟩ =>>! C -> C = match eval x with
                                                   | Some n => ⟨HALT , VAL n :: nil⟩
                                                   | None =>  ⟪nil⟫ 
                                                 end.
 Proof.
   intros.
-  pose (spec e HALT nil) as H'. unfold comp in *. pose (determ_trc determ_vm) as D.
+  pose (spec x HALT nil) as H'. unfold comp in *. pose (determ_trc determ_vm) as D.
   unfold determ in D. eapply D. apply H. split. apply H'. apply term_vm.
 Qed.
