@@ -28,8 +28,8 @@ system.
      semantics. Each tail recursive function of a VM corresponds to a
      configuration constructor in the small-step semantics. As a
      consequence, the calculations do not prove equations, but rather
-     instances of the relation =>>, which is the transitive, reflexive
-     closure of the relation ==> that defines the VM.
+     instances of the relation `=>>`, which is the transitive,
+     reflexive closure of the relation `==>` that defines the VM.
 
   2. The Coq files contain the final result of the calculation, and
      thus do not reflect the *process* of discovering the definition
@@ -37,12 +37,12 @@ system.
      the full definitions of the compiler and the virtual machine. But
      we used the same methodology as described in the paper to
      *develop* the Coq proofs. This is achieved by initially defining
-     the Code data type as an empty type, defining the VM relation as
-     an empty relation (i.e. with no rules), and defining the compiler
-     function using the term "Admit" (which corresponds to Haskell's
-     "undefined"). This setup then allows us to calculate the
-     definition of the Code data type, the VM, and the compiler as
-     described in the paper.
+     the `Code` data type as an empty type, defining the `==>`
+     relation as an empty relation (i.e. with no rules), and defining
+     the compiler function using the term `Admit` (which corresponds
+     to Haskell's "undefined"). This setup then allows us to calculate
+     the definition of the `Code` data type, the VM, and the compiler
+     as described in the paper.
 
 File Structure
 --------------
