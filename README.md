@@ -1,7 +1,4 @@
-Calculating Correct Compilers
-=============================
-
-[![Build Status](https://travis-ci.org/pa-ba/calc-comp.svg?branch=master)](https://travis-ci.org/pa-ba/calc-comp)
+# Calculating Correct Compilers [![Build Status](https://travis-ci.org/pa-ba/calc-comp.svg?branch=master)](https://travis-ci.org/pa-ba/calc-comp)
 
 This repository contains the supplementary material for the paper
 ["Calculating Correct Compilers"](http://www.diku.dk/~paba/pubs/files/bahr14jfp-preprint.pdf)
@@ -10,8 +7,8 @@ formalisations of all calculations in the paper. In addition, we also
 include Coq formalisations for calculations that were mentioned but
 not explicitly carried out in the paper.
 
-Paper vs. Coq Proofs
---------------------
+## Paper vs. Coq Proofs
+
 
 The Coq proofs proceed as the calculations in the paper. There are,
 however, two minor technical difference due to the nature of the Coq
@@ -44,8 +41,8 @@ system.
      the definition of the `Code` data type, the VM, and the compiler
      as described in the paper.
 
-File Structure
---------------
+## File Structure
+
 
 Below we list the relevant Coq files for the calculations in the
 paper:
@@ -75,8 +72,8 @@ recommend using the
 [generated documentation](http://pa-ba.github.io/calc-comp/doc/toc.html)
 to browse the Coq files.
 
-Haskell Code
-------------
+## Haskell Code
+
 
 Haskell definitions of the calculated compilers from the paper can be
 found in the [Haskell](Haskell) sub-directory. In addtion, the
@@ -84,8 +81,8 @@ found in the [Haskell](Haskell) sub-directory. In addtion, the
 the compilers generated from the Coq proofs using Coq's code
 extraction facility (see below).
 
-Technical Details
------------------
+## Technical Details
+
 
 ### Dependencies
 
