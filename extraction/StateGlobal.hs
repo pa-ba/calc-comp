@@ -21,16 +21,16 @@ data Code =
  | SAVE Code
 
 comp' :: Expr -> Code -> Code
-comp' e c =
-  case e of {
+comp' x c =
+  case x of {
    Val n -> PUSH n c;
-   Add x y -> comp' x (comp' y (ADD c));
+   Add x1 x2 -> comp' x1 (comp' x2 (ADD c));
    Throw -> FAIL;
-   Catch x h -> MARK (comp' h c) (comp' x (UNMARK c));
+   Catch x1 x2 -> MARK (comp' x2 c) (comp' x1 (UNMARK c));
    Get -> LOAD c;
-   Put x y -> comp' x (SAVE (comp' y c))}
+   Put x1 x2 -> comp' x1 (SAVE (comp' x2 c))}
 
 comp :: Expr -> Code
-comp e =
-  comp' e HALT
+comp x =
+  comp' x HALT
 

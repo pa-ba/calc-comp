@@ -15,14 +15,14 @@ data Code =
  | HALT
 
 comp' :: Expr -> Code -> Code -> Code
-comp' e sc fc =
-  case e of {
+comp' x sc fc =
+  case x of {
    Val n -> PUSH n sc;
-   Add x y -> comp' x (comp' y (ADD sc) (POP fc)) fc;
+   Add x0 y -> comp' x0 (comp' y (ADD sc) (POP fc)) fc;
    Throw -> fc;
-   Catch x h -> comp' x sc (comp' h sc fc)}
+   Catch x1 x2 -> comp' x1 sc (comp' x2 sc fc)}
 
 comp :: Expr -> Code
-comp e =
-  comp' e HALT HALT
+comp x =
+  comp' x HALT HALT
 

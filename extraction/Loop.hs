@@ -23,20 +23,20 @@ data Code =
  | HALT
 
 compE :: Expr -> Code -> Code
-compE e c =
-  case e of {
+compE x c =
+  case x of {
    Val n -> PUSH n c;
-   Add x y -> compE x (compE y (ADD c));
+   Add x1 x2 -> compE x1 (compE x2 (ADD c));
    Get -> GET c}
 
 compS :: Stmt -> Code -> Code
-compS e c =
-  case e of {
-   Put e0 -> compE e0 (PUT c);
-   Seqn e1 e2 -> compS e1 (compS e2 c);
-   While e1 e2 -> ENTER (compE e1 (JMP c (compS e2 LOOP)))}
+compS x c =
+  case x of {
+   Put x0 -> compE x0 (PUT c);
+   Seqn x1 x2 -> compS x1 (compS x2 c);
+   While x1 x2 -> ENTER (compE x1 (JMP c (compS x2 LOOP)))}
 
 comp :: Stmt -> Code
-comp e =
-  compS e HALT
+comp x =
+  compS x HALT
 
