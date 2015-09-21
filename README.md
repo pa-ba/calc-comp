@@ -1,7 +1,8 @@
 # Calculating Correct Compilers [![Build Status](https://travis-ci.org/pa-ba/calc-comp.svg?branch=master)](https://travis-ci.org/pa-ba/calc-comp)
 
 This repository contains the supplementary material for the paper
-["Calculating Correct Compilers"](http://www.diku.dk/~paba/pubs/files/bahr14jfp-preprint.pdf)
+["Calculating Correct Compilers"](docs/paper.pdf)
+([Journal of Functional Programming, 25, 2015](http://dx.doi.org/10.1017/S0956796815000180))
 by Patrick Bahr and Graham Hutton.  The material includes Coq
 formalisations of all calculations in the paper. In addition, we also
 include Coq formalisations for calculations that were mentioned but
