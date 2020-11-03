@@ -1,5 +1,3 @@
-Definition Admit {A} : A. admit. Defined.
-
 Ltac rewr_assumption := idtac; match goal with
                           | [R: _ = _ |- _ ] => first [rewrite R| rewrite <- R]
                         end.
@@ -15,13 +13,17 @@ End Preorder.
 Module Calculation (Ord : Preorder).
 Import Ord.
 
-Notation "x ==> y" := (VM x y) (at level 80, no associativity).
+Declare Scope machine_scope.
+
+Notation "x ==> y" := (VM x y) (at level 80, no associativity) : machine_scope.
 
 Reserved Notation "x =>> y" (at level 80, no associativity).
 Inductive trc : Conf -> Conf -> Prop :=
 | trc_refl c : c =>> c
 | trc_step_trans c1 c2 c3 : c1 ==> c2 -> c2 =>> c3 -> c1 =>> c3
- where "x =>> y" := (trc x y).
+ where "x =>> y" := (trc x y) : machine_scope.
+
+Open Scope machine_scope.
 
 
 Lemma trc_step c1 c2 : c1 ==> c2 -> c1 =>> c2.

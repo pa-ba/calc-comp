@@ -160,13 +160,13 @@ where "x ==> y" := (VM x y).
 
 (** Conversion functions from semantics to VM *)
 
-Fixpoint convV (v : Value) : Value' :=
+Definition convV (v : Value) : Value' :=
   match v with
     | Num n => Num' n
     | Clo x e => Clo' (comp' x RET) e
   end.
 
-Fixpoint convHE (t : HElem) : HElem' :=
+Definition convHE (t : HElem) : HElem' :=
   match t with
     | value v => value' (convV v)
     | thunk x e => thunk' (comp' x WRITE) e

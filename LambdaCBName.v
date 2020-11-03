@@ -124,7 +124,7 @@ Fixpoint convT (t : Thunk) : Thunk' :=
 
 Definition convE : Env -> Env' := map convT.
 
-Fixpoint convV (v : Value) : Value' :=
+Definition convV (v : Value) : Value' :=
   match v with
     | Num n => Num' n
     | Clo x e => Clo' (comp' x RET) (convE e)

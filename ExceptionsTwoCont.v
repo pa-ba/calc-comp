@@ -67,7 +67,7 @@ Inductive VM : Conf -> Conf -> Prop :=
 | vm_pop c n s : ⟨POP c, VAL n :: s⟩ ==> ⟨c, s⟩
 where "x ==> y" := (VM x y).
 
-Hint Constructors VM.
+Hint Constructors VM : core.
 
 (** * Calculation *)
 
