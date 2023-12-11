@@ -1,4 +1,4 @@
-# Calculating Correct Compilers [![Build Status](https://travis-ci.org/pa-ba/calc-comp.svg?branch=master)](https://travis-ci.org/pa-ba/calc-comp)
+# Calculating Correct Compilers
 
 This repository contains the supplementary material for the paper
 ["Calculating Correct Compilers"](docs/paper.pdf)
@@ -56,7 +56,7 @@ paper:
  - [StateLocal.v](StateLocal.v): local state (section 4.2)
  - [Lambda.v](Lambda.v): call-by-value lambda calculus (section 5)
 
-In addition we also include calculations for the following languages:
+In addition, we also include calculations for the following languages:
 
  - [LambdaCBName.v](LambdaCBName.v): call-by-name lambda calculus
  - [LambdaCBNeed.v](LambdaCBNeed.v): call-by-need lambda calculus
@@ -68,17 +68,14 @@ In addition we also include calculations for the following languages:
 
 The remaining files are used to define the Coq tactics to support
 reasoning in calculation style ([Tactics.v](Tactics.v)) and to specify
-auxiliary concepts ([Heap.v](Heap.v), [ListIndex.v](ListIndex.v)). We
-recommend using the
-[generated documentation](http://pa-ba.github.io/calc-comp/doc/toc.html)
-to browse the Coq files.
+auxiliary concepts ([Heap.v](Heap.v), [ListIndex.v](ListIndex.v)).
 
 ## Haskell Code
 
 
 Haskell definitions of the calculated compilers from the paper can be
-found in the [Haskell](Haskell) sub-directory. In addtion, the
-[extraction](extraction) sub-directory contains Haskell definitions of
+found in the [Haskell](Haskell) subdirectory. In addition, the
+[extraction](extraction) subdirectory contains Haskell definitions of
 the compilers generated from the Coq proofs using Coq's code
 extraction facility (see below).
 
@@ -87,8 +84,7 @@ extraction facility (see below).
 
 ### Dependencies
 
-- To check the proofs: Coq 8.4pl5
-- To step through the proofs: GNU Emacs 24.3.1, Proof General 4.2
+Tested with Coq versions 8.17, 8.18
 
 ### Proof Checking
 
@@ -105,7 +101,7 @@ use the `Makefile`:
 
 ### Code Extraction
 
-The Haskell definitions in the sub-directory [extraction](extraction)
+The Haskell definitions in the subdirectory [extraction](extraction)
 have be obtained by code extraction. The code extraction can be
 repeated as follows:
 
