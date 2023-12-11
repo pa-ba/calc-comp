@@ -1,4 +1,4 @@
-# Calculating Correct Compilers
+# Calculating Correct Compilers [![Coq](https://github.com/pa-ba/calc-comp/actions/workflows/coq.yml/badge.svg)](https://github.com/pa-ba/calc-comp/actions/workflows/coq.yml)
 
 This repository contains the supplementary material for the paper
 ["Calculating Correct Compilers"](docs/paper.pdf)
