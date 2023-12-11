@@ -1,7 +1,10 @@
-Add LoadPath "..".
+Require Extraction.
+
+
+Extraction Language Haskell.
 
 Extract Inductive nat => "Prelude.Int" ["0" "succ"] "(\fO fS n -> if n==0 then fO () else fS (n-1))".
-Extraction Language Haskell.
+
 
 Require Arith.
 Extraction "Arith.hs" Arith.comp.

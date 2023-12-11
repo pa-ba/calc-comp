@@ -76,6 +76,7 @@ Inductive VM : Conf -> Conf -> Prop :=
 | vm_mark c h s : ⟨MARK h c, s⟩ ==> ⟨c, HAN h :: s⟩
 where "x ==> y" := (VM x y).
 
+#[export]
 Hint Constructors VM : core.
 
 (** * Calculation *)

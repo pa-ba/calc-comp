@@ -92,6 +92,7 @@ Inductive VM : Conf -> Conf -> Prop :=
 | vm_fail_han c s q : ⟪HAN c q :: s ⟫ ==> ⟨c, s, q⟩
 where "x ==> y" := (VM x y).
 
+#[export]
 Hint Constructors VM : core.
 
 (** * Calculation *)
